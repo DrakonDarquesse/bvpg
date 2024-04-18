@@ -3,7 +3,7 @@ import string
 from pptx import Presentation
 from pptx.enum.dml import MSO_FILL
 from bible_passage_api import CuvsPassageApi, KjvPassageApi
-from main import BibleBook, Passage, Verse
+from models import BibleBook, Passage, Verse
 from jinja2 import Environment, meta
 
 # Configure Jinja2 environment with custom delimiters
@@ -51,14 +51,13 @@ class PresentationBuilder:
 class BibleVersePresentationBuilder(PresentationBuilder):
     template = Presentation("test.pptx")
 
-    def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None) -> None:
+    def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
         self.save_file_name = save_file_name
         self.base_file = Presentation(base_name)
+        self.passages = passages
 
     def get_passages(self):
-        passage = Passage(book=BibleBook.romans, start_verse=Verse(
-            chapter=15, verse=22), end_verse=Verse(chapter=15, verse=33))
-        return [passage]
+        return self.passages
 
     def get_slide_names(self):
         slide_names: list[str] = ["verse"]
@@ -189,14 +188,13 @@ class BibleVersePresentationBuilder(PresentationBuilder):
 class ResponsivePresentationBuilder(PresentationBuilder):
     template = Presentation("responsive_reading.pptx")
 
-    def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None) -> None:
+    def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
         self.save_file_name = save_file_name
         self.base_file = Presentation(base_name)
+        self.passages = passages
 
     def get_passages(self):
-        passage = Passage(book=BibleBook.proverbs, start_verse=Verse(
-            chapter=13, verse=1), end_verse=Verse(chapter=13, verse=12))
-        return [passage]
+        return self.passages
 
     def get_slide_names(self):
         slide_names: list[str] = ["cover", "responsive"]
@@ -337,8 +335,3 @@ class ResponsivePresentationBuilder(PresentationBuilder):
             'eng_close': english_verses[last_index][1],
             'responsive_end': ''
         }
-
-
-slide = ResponsivePresentationBuilder(base_name="base_wide.pptx")
-slide.build()
-slide.save_file()
