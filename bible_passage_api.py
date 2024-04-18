@@ -1,10 +1,11 @@
 from enum import Enum
+import math
 import re
 import sqlite3
 from typing import Callable
 from pydantic_core import Url
 import requests
-from main import Passage
+from main import Passage, BibleBook, Verse
 
 
 def match_number_and_verse_pair(passage):
@@ -40,6 +41,10 @@ def split_verse_and_match_number(passage):
     return list(zip(verse_numbers, verses))
 
 
+def get_verse(chapter_verse: float):
+    return math.ceil(chapter_verse * 1000 % 1000)
+
+
 class BiblePassageApi:
 
     api: Url | None = None
@@ -58,6 +63,8 @@ class KjvPassageApi(BiblePassageApi):
     class BookCode(int, Enum):
         GEN = 1
         EXO = 2
+        PRO = 20
+        ROM = 45
 
     def get_param(self, passage: Passage):
         book = self.BookCode(passage.book.value).name
@@ -72,7 +79,6 @@ class KjvPassageApi(BiblePassageApi):
         url = self.get_api(passage=passage)
         r = requests.get(url.unicode_string(), headers={
             'api-key': 'f89e0fc2938f4d054717716279057d45', 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
-
         content = r.json().get('data').get('content')
         return match_number_and_verse_pair(content)
 
@@ -80,32 +86,31 @@ class KjvPassageApi(BiblePassageApi):
 class CuvsPassageApi(BiblePassageApi):
 
     def retrieve_passage(self, passage: Passage, *args, **kwargs):
+        start_verse = passage.start_verse.chapter + passage.start_verse.verse / 1000
+        end_verse = passage.end_verse.chapter + passage.end_verse.verse / 1000
         try:
             # Connect to DB and create a cursor
-            sqliteConnection = sqlite3.connect('bible_cuvs.db')
+            sqliteConnection = sqlite3.connect('rcuvss.sqlite3')
             cursor = sqliteConnection.cursor()
             print('DB Init')
 
             # Write a query and execute it with cursor
             query = \
                 f'''
-                WITH book AS 
-                (SELECT bible.ID, Bible.ChapterSN, Bible.VerseSN, Bible.Lection FROM Bible
-                JOIN BibleID ON Bible.VolumeSN = BibleID.SN 
-                WHERE Bible.VolumeSN = {passage.book.value})
+                    WITH book AS 
+                    (SELECT v.id, v.verse, v.unformatted FROM verses v
+                    JOIN books b ON v.book = b.osis
+                    WHERE b.number = {passage.book.value})
 
-                SELECT Bible.VerseSN, Bible.Lection FROM Bible
-                WHERE BIBLE.ID BETWEEN
-                (
-                    SELECT ID FROM book
-                    WHERE ChapterSN = {passage.start_verse.chapter} AND VerseSN = {passage.start_verse.verse}
+                    SELECT v.verse, v.unformatted FROM verses v
+                    WHERE v.id BETWEEN
+                    (
+                        SELECT id FROM book WHERE verse = {start_verse}
 
-                ) AND
-                (
-                    SELECT ID FROM book
-                    WHERE ChapterSN = {passage.end_verse.chapter} AND VerseSN = {passage.end_verse.verse}
-
-                );
+                    ) AND
+                    (
+                        SELECT id FROM book WHERE verse = {end_verse}
+                    );
                 '''
             cursor.execute(query)
 
@@ -115,7 +120,7 @@ class CuvsPassageApi(BiblePassageApi):
             # Close the cursor
             cursor.close()
 
-            return result
+            return list(map(lambda x: (get_verse(x[0]), x[1]), result))
 
         # Handle errors
         except sqlite3.Error as error:
