@@ -1,30 +1,29 @@
-from enum import Enum
 from typing import Annotated, Any
-
 from fastapi import FastAPI, Query
+from fastapi.responses import FileResponse
 
-from pydantic import BaseModel
-
-
-class BibleBook(int, Enum):
-    genesis = 1
-    exodus = 2
-    romans = 45
-    proverbs = 20
-
-
-class Verse(BaseModel):
-    chapter: int
-    verse: int
-
-
-class Passage(BaseModel):
-    book: BibleBook
-    start_verse: Verse
-    end_verse: Verse
-
+from models import BibleBook, Passage, Verse
+from presentation_builder import BibleVersePresentationBuilder, ResponsivePresentationBuilder
 
 app = FastAPI()
+
+
+@app.post("/bvpg/slides/bible-reading", response_class=FileResponse)
+async def build_slide_bible_reading(passages: list[Passage]):
+    slide = BibleVersePresentationBuilder(
+        base_name="base_wide.pptx", passages=passages)
+    slide.build()
+    slide.save_file()
+    return "slide.pptx"
+
+
+@app.post("/bvpg/slides/responsive-reading", response_class=FileResponse)
+async def build_slide_responsive_reading(passages: list[Passage]):
+    slide = ResponsivePresentationBuilder(
+        base_name="base_wide.pptx", passages=passages)
+    slide.build()
+    slide.save_file()
+    return "slide.pptx"
 
 
 @app.post("/bvpg/slides/passage", response_model=list[Passage])
