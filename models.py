@@ -7,6 +7,7 @@ class BibleBook(int, Enum):
     exodus = 2
     romans = 45
     proverbs = 20
+    john = 43
 
 
 class Verse(BaseModel):

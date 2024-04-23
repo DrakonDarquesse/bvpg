@@ -20,6 +20,7 @@ class BibleBookVerbose(str, Enum):
     exodus = "出埃及记"
     proverbs = "箴言"
     romans = "罗马书"
+    john = "约翰福音"
 
 
 def format_overline(passage: Passage):

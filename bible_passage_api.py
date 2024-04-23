@@ -65,6 +65,7 @@ class KjvPassageApi(BiblePassageApi):
         EXO = 2
         PRO = 20
         ROM = 45
+        JHN = 43
 
     def get_param(self, passage: Passage):
         book = self.BookCode(passage.book.value).name
