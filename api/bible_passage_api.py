@@ -5,7 +5,7 @@ import sqlite3
 from typing import Callable
 from pydantic_core import Url
 import requests
-from main import Passage, BibleBook, Verse
+from models import Passage
 
 
 def match_number_and_verse_pair(passage):
