@@ -2,6 +2,45 @@ from pptx.enum.dml import MSO_FILL  # type: ignore
 from renderer import env
 
 
+def duplicate_shape(source_shape, target_shape):
+    """
+    Args:
+        source_shape  
+        target_shape
+
+    copies properties of source shape into target shape, including paragraphs and text styles
+    """
+    target_shape.left = source_shape.left
+    target_shape.top = source_shape.top
+    target_shape.width = source_shape.width
+    target_shape.height = source_shape.height
+
+    target_shape.text_frame.word_wrap = True
+    target_shape.text_frame.vertical_anchor = source_shape.text_frame.vertical_anchor
+
+    for paragraph in source_shape.text_frame.paragraphs:
+        # when iterating paragraph, update the last paragraph in new_shape.text_frame
+        new_paragraph = target_shape.text_frame.paragraphs[len(
+            target_shape.text_frame.paragraphs)-1]
+        new_paragraph.alignment = paragraph.alignment
+
+        for run in paragraph.runs:
+            new_run = new_paragraph.add_run()
+            new_run.text = run.text
+            new_run.font.name = run.font.name
+            new_run.font.size = run.font.size
+            new_run.font.bold = run.font.bold
+            new_run.font.italic = run.font.italic
+            new_run.font.underline = run.font.underline
+            new_run.font._element.set(
+                'baseline', run.font._element.get('baseline', '0'))
+            if run.font.color.rgb is not None:
+                new_run.font.color.rgb = run.font.color.rgb
+
+        if len(target_shape.text_frame.paragraphs) != len(source_shape.text_frame.paragraphs):
+            target_shape.text_frame.add_paragraph()
+
+
 def duplicate_slide(source_slide, target_slide):
     """
     copy background (if its solid color) and all texts along with stylings.
@@ -19,40 +58,7 @@ def duplicate_slide(source_slide, target_slide):
 
     title = source_slide.shapes.title
 
-    target_title = target_slide.shapes.title
-
-    target_title.left = title.left
-    target_title.top = title.top
-    target_title.width = title.width
-    target_title.height = title.height
-
-    target_title.text_frame.word_wrap = True
-    target_title.text_frame.vertical_anchor = title.text_frame.vertical_anchor
-
-    for paragraph in title.text_frame.paragraphs:
-        # when iterating paragraph, update the last paragraph in new_shape.text_frame
-        new_paragraph = target_title.text_frame.paragraphs[len(
-            target_title.text_frame.paragraphs)-1]
-        new_paragraph.alignment = paragraph.alignment
-        # print(new_paragraph.alignment)
-
-        for run in paragraph.runs:
-            new_run = new_paragraph.add_run()
-            new_run.text = run.text
-            new_run.font.name = run.font.name
-            new_run.font.size = run.font.size
-            new_run.font.bold = run.font.bold
-            new_run.font.italic = run.font.italic
-            new_run.font.underline = run.font.underline
-            new_run.font._element.set(
-                'baseline', run.font._element.get('baseline', '0'))
-            if run.font.color.rgb is not None:
-                new_run.font.color.rgb = run.font.color.rgb
-                print(new_run.font.color.rgb)
-
-        if len(target_title.text_frame.paragraphs) != len(title.text_frame.paragraphs):
-            target_title.text_frame.add_paragraph()
-
+    duplicate_shape(title, target_slide.shapes.title)
     for shape in source_slide.shapes:
         if not shape.has_text_frame:
             continue
@@ -62,31 +68,10 @@ def duplicate_slide(source_slide, target_slide):
 
         new_shape = target_slide.shapes.add_textbox(shape.left, shape.top, shape.width,
                                                     shape.height)  # add a new textbox to the slide
-        new_shape.text_frame.word_wrap = True
-        new_shape.text_frame.vertical_anchor = shape.text_frame.vertical_anchor
-        for paragraph in shape.text_frame.paragraphs:
-            # when iterating paragraph, update the last paragraph in new_shape.text_frame
-            new_paragraph = new_shape.text_frame.paragraphs[len(
-                new_shape.text_frame.paragraphs)-1]
-            new_paragraph.alignment = paragraph.alignment
 
-            for run in paragraph.runs:
-                new_run = new_paragraph.add_run()
-                new_run.text = run.text
-                new_run.font.name = run.font.name
-                new_run.font.size = run.font.size
-                new_run.font.bold = run.font.bold
-                new_run.font.italic = run.font.italic
-                new_run.font.underline = run.font.underline
-                new_run.font._element.set(
-                    'baseline', run.font._element.get('baseline', '0'))
-                if run.font.color.rgb is not None:
-                    new_run.font.color.rgb = run.font.color.rgb
+        duplicate_shape(shape, new_shape)
 
-            if len(new_shape.text_frame.paragraphs) != len(shape.text_frame.paragraphs):
-                new_shape.text_frame.add_paragraph()
-
-# renderer as a class that takes in env
+# TODO: renderer as a class that takes in env
 
 
 def render_slide_data(slide, context):
