@@ -5,6 +5,7 @@ import sqlite3
 from typing import Callable
 from pydantic_core import Url
 import requests
+from data.bible import BibleBook
 from models import Passage
 
 
@@ -60,15 +61,17 @@ class BiblePassageApi:
 class KjvPassageApi(BiblePassageApi):
     bible = 'de4e12af7f28f599-01'
 
+    # TODO: directly use bible book enum, instead of duplicating the numeric value
     class BookCode(int, Enum):
-        GEN = 1
-        EXO = 2
-        PRO = 20
-        ROM = 45
-        JHN = 43
+        GEN = BibleBook.genesis
+        EXO = BibleBook.exodus
+        PRO = BibleBook.proverbs
+        ROM = BibleBook.romans
+        JHN = BibleBook.john
+        MRK = BibleBook.mark
 
     def get_param(self, passage: Passage):
-        book = self.BookCode(passage.book.value).name
+        book = self.BookCode(passage.book).name
         return f'{book}.{passage.start_verse.chapter}.{passage.start_verse.verse}-{book}.{passage.end_verse.chapter}.{passage.end_verse.verse}'
 
     def get_api(self, passage: Passage, *args, **kwargs) -> Url:
