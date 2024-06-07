@@ -1,13 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
 
-
-class BibleBook(int, Enum):
-    genesis = 1
-    exodus = 2
-    romans = 45
-    proverbs = 20
-    john = 43
+from data.bible import BibleBook
 
 
 class Verse(BaseModel):
