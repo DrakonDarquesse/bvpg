@@ -1,5 +1,5 @@
+from jinja2 import Environment
 from pptx.enum.dml import MSO_FILL  # type: ignore
-from renderer import env
 
 
 def duplicate_shape(source_shape, target_shape):
@@ -71,10 +71,8 @@ def duplicate_slide(source_slide, target_slide):
 
         duplicate_shape(shape, new_shape)
 
-# TODO: renderer as a class that takes in env
 
-
-def render_slide_data(slide, context):
+def render_slide_data(slide, context, env):
 
     slide.shapes.title.text_frame.paragraphs[0].runs[0].text = context['data'].get(
         'title', slide.shapes.title.text)

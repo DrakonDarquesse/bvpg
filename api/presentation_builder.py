@@ -3,6 +3,7 @@ from data.bible import BibleBookVerbose
 from base import ContextMixin, PresentationBuilder, PresentationTemplateMixin, duplicate_slide, render_slide_data
 from bible_passage_api import CuvsPassageApi, KjvPassageApi
 from models import BibleBook, Passage, Verse
+from environment import env
 
 
 def format_overline(passage: Passage):
@@ -97,11 +98,11 @@ class PassagePresentationBuilder(PresentationBuilder, PresentationTemplateMixin,
         new_slide = self.new_slide()
 
         duplicate_slide(template_slide, new_slide)
-        render_slide_data(new_slide, context)
+        render_slide_data(new_slide, context, env)
 
 
-passages = [Passage(book=BibleBook.mark, start_verse=Verse(
-    chapter=3, verse=1), end_verse=Verse(chapter=3, verse=5))]
+passages = [Passage(book=BibleBook.ruth, start_verse=Verse(
+    chapter=1, verse=1), end_verse=Verse(chapter=1, verse=17))]
 slide = PassagePresentationBuilder(
     base_name="template/base_wide.pptx", passages=passages)
 slide.build()
