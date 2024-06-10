@@ -2,16 +2,17 @@ from typing import Annotated, Any
 from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
 
-from models import BibleBook, Passage, Verse
-from presentation_builder import BibleVersePresentationBuilder, ResponsivePresentationBuilder
+from responsive_presentation_builder import ResponsivePresentationBuilder
+from presentation_builder import PassagePresentationBuilder
+from models import Passage
 
 app = FastAPI()
 
 
 @app.post("/bvpg/slides/bible-reading", response_class=FileResponse)
 async def build_slide_bible_reading(passages: list[Passage]):
-    slide = BibleVersePresentationBuilder(
-        base_name="base_wide.pptx", passages=passages)
+    slide = PassagePresentationBuilder(
+        base_name="template/base_wide.pptx", passages=passages)
     slide.build()
     slide.save_file()
     return "slide.pptx"
@@ -20,7 +21,7 @@ async def build_slide_bible_reading(passages: list[Passage]):
 @app.post("/bvpg/slides/responsive-reading", response_class=FileResponse)
 async def build_slide_responsive_reading(passages: list[Passage]):
     slide = ResponsivePresentationBuilder(
-        base_name="base_wide.pptx", passages=passages)
+        base_name="template/base_wide.pptx", passages=passages)
     slide.build()
     slide.save_file()
     return "slide.pptx"
