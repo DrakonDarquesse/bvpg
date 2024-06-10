@@ -3,6 +3,7 @@ from data.bible import BibleBookVerbose
 from base import ContextMixin, PresentationBuilder, PresentationTemplateMixin, duplicate_slide, render_slide_data
 from bible_passage_api import CuvsPassageApi, KjvPassageApi
 from models import BibleBook, Passage, Verse
+from environment import env
 
 
 class ResponsiveContext(ContextMixin):
@@ -37,7 +38,10 @@ class ResponsiveContext(ContextMixin):
         chinese_verses = chinese_passage_api.retrieve_passage(
             passage)
 
-        for i in range(0, len(english_verses), 2):
+        verses_len = len(english_verses)
+
+        range_limit = verses_len if verses_len % 2 == 0 else verses_len - 1
+        for i in range(0, range_limit, 2):
             print(i)
             slide_contexts.append({
                 'title': 'responsive',
@@ -73,7 +77,7 @@ class ResponsiveContext(ContextMixin):
 
 
 class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMixin, ResponsiveContext):
-    template = Presentation("responsive_reading.pptx")
+    template = Presentation("template/responsive_reading.pptx")
 
     def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
         self.save_file_name = save_file_name
@@ -96,12 +100,12 @@ class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMix
         new_slide = self.new_slide()
 
         duplicate_slide(template_slide, new_slide)
-        render_slide_data(new_slide, context)
+        render_slide_data(new_slide, context, env)
 
 
-passages = [Passage(book=BibleBook.genesis, start_verse=Verse(
-    chapter=1, verse=1), end_verse=Verse(chapter=1, verse=4))]
+passages = [Passage(book=BibleBook.proverbs, start_verse=Verse(
+    chapter=16, verse=1), end_verse=Verse(chapter=16, verse=8))]
 slide = ResponsivePresentationBuilder(
-    base_name="base_wide.pptx", passages=passages)
+    base_name="template/base_wide.pptx", passages=passages)
 slide.build()
 slide.save_file()
