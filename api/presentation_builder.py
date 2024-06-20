@@ -63,15 +63,21 @@ class PassageContext(ContextMixin):
                 passage)
             overline = format_overline(passage=passage)
 
-            for i, verse in enumerate(english_verses):
+            combined_verses = combine_chi_eng_verses(
+                [], chinese_verses, english_verses)
+
+            for verse in combined_verses:
+                print(verse['num'])
                 slide_contexts.append({
                     'title': 'verse',
                     'data': {
                         'title': overline,
-                        'verse_num': verse[0],
-                        'chi_verse': chinese_verses[i][1],
-                        'eng_verse': verse[1]}
+                        'verse_num': verse['num'],
+                        'chi_verse': "".join(verse['chi']),
+                        'eng_verse': "".join(verse['eng'])
+                    }
                 })
+
         return slide_contexts
 
 
@@ -101,9 +107,27 @@ class PassagePresentationBuilder(PresentationBuilder, PresentationTemplateMixin,
         render_slide_data(new_slide, context, env)
 
 
-passages = [Passage(book=BibleBook.ruth, start_verse=Verse(
-    chapter=1, verse=1), end_verse=Verse(chapter=1, verse=17))]
-slide = PassagePresentationBuilder(
-    base_name="template/base_wide.pptx", passages=passages)
-slide.build()
-slide.save_file()
+# passages = [Passage(book=BibleBook.ruth, start_verse=Verse(
+#     chapter=1, verse=1), end_verse=Verse(chapter=1, verse=17))]
+# slide = PassagePresentationBuilder(
+#     base_name="template/base_wide.pptx", passages=passages)
+# slide.build()
+# slide.save_file()
+
+
+def combine_chi_eng_verses(verses: list[dict], chi_verses: list, eng_verses: list):
+    # if one verse its number is smaller, append it to the last in the verses
+    if int(eng_verses[0][0]) < chi_verses[0][0]:
+        verses[-1]['eng'].append(eng_verses.pop(0)[1])
+    elif int(eng_verses[0][0]) == chi_verses[0][0]:
+        eng_verse = eng_verses.pop(0)
+        chi_verse = chi_verses.pop(0)
+        verses.append({
+            'num': eng_verse[0],
+            'eng': [eng_verse[1]],
+            'chi': [chi_verse[1]],
+        })
+    if len(eng_verses) > 0:
+        verses = combine_chi_eng_verses(verses, chi_verses, eng_verses)
+
+    return verses
