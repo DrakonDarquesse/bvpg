@@ -38,23 +38,26 @@ class ResponsiveContext(ContextMixin):
         chinese_verses = chinese_passage_api.retrieve_passage(
             passage)
 
-        verses_len = len(english_verses)
+        combined_verses = combine_chi_eng_verses(
+            chinese_verses, english_verses)
+
+        verses_len = len(combined_verses)
 
         range_limit = verses_len if verses_len % 2 == 0 else verses_len - 1
         for i in range(0, range_limit, 2):
-            print(i)
             slide_contexts.append({
                 'title': 'responsive',
                 'data': {
-                    'chi_open': chinese_verses[i][1],
-                    'eng_open': english_verses[i][1],
-                    'chi_close': chinese_verses[i+1][1],
-                    'eng_close': english_verses[i+1][1],
+                    'chi_open': "".join(combined_verses[i]['chi']),
+                    'eng_open': "".join(combined_verses[i]['eng']),
+                    'chi_close': "".join(combined_verses[i+1]['chi']),
+                    'eng_close': "".join(combined_verses[i+1]['eng']),
                     'title': ''
                 }
             })
         return slide_contexts
 
+    # TODO: reduces amount of API calls
     def responsive_end(self):
         passage = self.get_passages()[0]
         english_passage_api = KjvPassageApi()
@@ -64,13 +67,15 @@ class ResponsiveContext(ContextMixin):
             passage)
         chinese_verses = chinese_passage_api.retrieve_passage(
             passage)
-        last_index = len(english_verses) - 1
+        combined_verses = combine_chi_eng_verses(
+            chinese_verses, english_verses)
+        last_index = len(combined_verses) - 1
 
         return {
             'title': 'responsive_end',
             'data': {
-                'chi_close': chinese_verses[last_index][1],
-                'eng_close': english_verses[last_index][1],
+                'chi_close': "".join(combined_verses[last_index]['chi']),
+                'eng_close': "".join(combined_verses[last_index]['eng']),
                 'title': ''
             }
         }
@@ -80,6 +85,7 @@ class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMix
     template = Presentation("template/responsive_reading.pptx")
 
     def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
+        super().__init__()
         self.save_file_name = save_file_name
         self.base_file = Presentation(base_name)
         self.passages = passages
@@ -103,9 +109,28 @@ class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMix
         render_slide_data(new_slide, context, env)
 
 
-passages = [Passage(book=BibleBook.proverbs, start_verse=Verse(
-    chapter=16, verse=1), end_verse=Verse(chapter=16, verse=8))]
-slide = ResponsivePresentationBuilder(
-    base_name="template/base_wide.pptx", passages=passages)
-slide.build()
-slide.save_file()
+def combine_chi_eng_verses(chi_verses: list, eng_verses: list):
+    verses = []
+    while len(eng_verses) > 0:
+        if int(eng_verses[0][0]) == chi_verses[0][0]:
+            eng_verse = eng_verses.pop(0)
+            chi_verse = chi_verses.pop(0)
+            verses.append({
+                'num': eng_verse[0],
+                'eng': [eng_verse[1]],
+                'chi': [chi_verse[1]],
+            })
+        # if one verse its number is smaller, append it to the last in the verses
+        elif int(eng_verses[0][0]) < chi_verses[0][0]:
+            verses[-1]['eng'].append(eng_verses.pop(0)[1])
+        elif int(eng_verses[0][0]) > chi_verses[0][0]:
+            verses[-1]['chi'].append(chi_verses.pop(0)[1])
+    return verses
+
+
+# passages = [Passage(book=BibleBook.proverbs, start_verse=Verse(
+#     chapter=16, verse=1), end_verse=Verse(chapter=16, verse=8))]
+# slide = ResponsivePresentationBuilder(
+#     base_name="template/base_wide.pptx", passages=passages)
+# slide.build()
+# slide.save_file()
