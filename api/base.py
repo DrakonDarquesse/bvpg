@@ -89,6 +89,10 @@ def render_slide_data(slide, context, env):
 
 class PresentationTemplateMixin:
     template = None
+    slides = []
+
+    def __init__(self) -> None:
+        self.slides = self.get_slides()
 
     def get_template(self):
         return self.template
@@ -100,7 +104,7 @@ class PresentationTemplateMixin:
 
     def get_slide(self, title):
         return next(
-            (slide for slide in self.get_slides() if slide.shapes.title.text == title))
+            (slide for slide in self.slides if slide.shapes.title.text == title))
 
 
 # TODO: set as enum or something? or just park it under presentation builder
