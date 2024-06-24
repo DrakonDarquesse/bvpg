@@ -43,7 +43,7 @@ def split_verse_and_match_number(passage):
 
 
 def get_verse(chapter_verse: float):
-    return math.ceil(chapter_verse * 1000 % 1000)
+    return round(chapter_verse * 1000 % 1000)
 
 
 class BiblePassageApi:
