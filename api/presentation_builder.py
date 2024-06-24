@@ -64,10 +64,9 @@ class PassageContext(ContextMixin):
             overline = format_overline(passage=passage)
 
             combined_verses = combine_chi_eng_verses(
-                [], chinese_verses, english_verses)
+                chinese_verses, english_verses)
 
             for verse in combined_verses:
-                print(verse['num'])
                 slide_contexts.append({
                     'title': 'verse',
                     'data': {
@@ -85,6 +84,7 @@ class PassagePresentationBuilder(PresentationBuilder, PresentationTemplateMixin,
     template = Presentation("template/passage_template.pptx")
 
     def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
+        super().__init__()
         self.save_file_name = save_file_name
         self.base_file = Presentation(base_name)
         self.passages = passages
@@ -115,19 +115,20 @@ class PassagePresentationBuilder(PresentationBuilder, PresentationTemplateMixin,
 # slide.save_file()
 
 
-def combine_chi_eng_verses(verses: list[dict], chi_verses: list, eng_verses: list):
-    # if one verse its number is smaller, append it to the last in the verses
-    if int(eng_verses[0][0]) < chi_verses[0][0]:
-        verses[-1]['eng'].append(eng_verses.pop(0)[1])
-    elif int(eng_verses[0][0]) == chi_verses[0][0]:
-        eng_verse = eng_verses.pop(0)
-        chi_verse = chi_verses.pop(0)
-        verses.append({
-            'num': eng_verse[0],
-            'eng': [eng_verse[1]],
-            'chi': [chi_verse[1]],
-        })
-    if len(eng_verses) > 0:
-        verses = combine_chi_eng_verses(verses, chi_verses, eng_verses)
-
+def combine_chi_eng_verses(chi_verses: list, eng_verses: list):
+    verses = []
+    while len(eng_verses) > 0:
+        if int(eng_verses[0][0]) == chi_verses[0][0]:
+            eng_verse = eng_verses.pop(0)
+            chi_verse = chi_verses.pop(0)
+            verses.append({
+                'num': eng_verse[0],
+                'eng': [eng_verse[1]],
+                'chi': [chi_verse[1]],
+            })
+        # if one verse its number is smaller, append it to the last in the verses
+        elif int(eng_verses[0][0]) < chi_verses[0][0]:
+            verses[-1]['eng'].append(eng_verses.pop(0)[1])
+        elif int(eng_verses[0][0]) > chi_verses[0][0]:
+            verses[-1]['chi'].append(chi_verses.pop(0)[1])
     return verses
