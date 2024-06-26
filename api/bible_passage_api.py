@@ -61,14 +61,15 @@ class BiblePassageApi:
 class KjvPassageApi(BiblePassageApi):
     bible = 'de4e12af7f28f599-01'
 
-    # TODO: directly use bible book enum, instead of duplicating the numeric value
     class BookCode(int, Enum):
         GEN = BibleBook.genesis
         EXO = BibleBook.exodus
+        RUT = BibleBook.ruth
         PRO = BibleBook.proverbs
         ROM = BibleBook.romans
         JHN = BibleBook.john
         MRK = BibleBook.mark
+        EPH = BibleBook.ephesians
 
     def get_param(self, passage: Passage):
         book = self.BookCode(passage.book).name
@@ -81,10 +82,20 @@ class KjvPassageApi(BiblePassageApi):
 
     def retrieve_passage(self, passage: Passage, *args, **kwargs):
         url = self.get_api(passage=passage)
-        r = requests.get(url.unicode_string(), headers={
-            'api-key': 'f89e0fc2938f4d054717716279057d45', 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
-        content = r.json().get('data').get('content')
-        return match_number_and_verse_pair(content)
+        try:
+            r = requests.get(url.unicode_string(), headers={
+                'api-key': 'f89e0fc2938f4d054717716279057d45', 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
+            r.raise_for_status()
+            content = r.json().get('data').get('content')
+            return match_number_and_verse_pair(content)
+        except requests.exceptions.HTTPError as err:
+            print('HTTP Error:', err)
+        except requests.exceptions.ConnectionError as err:
+            print('Connection Error:', err)
+        except requests.exceptions.Timeout as err:
+            print('Timeout Error:', err)
+
+        return []
 
 
 class CuvsPassageApi(BiblePassageApi):
@@ -101,7 +112,7 @@ class CuvsPassageApi(BiblePassageApi):
             # Write a query and execute it with cursor
             query = \
                 f'''
-                    WITH book AS 
+                    WITH book AS
                     (SELECT v.id, v.verse, v.unformatted FROM verses v
                     JOIN books b ON v.book = b.osis
                     WHERE b.number = {passage.book.value})
