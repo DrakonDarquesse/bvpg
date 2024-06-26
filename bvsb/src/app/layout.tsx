@@ -4,7 +4,7 @@ import { ClientThemeProvider } from "../web/theme/theme-provider";
 
 const RootLayout = (props: PropsWithChildren) => {
   return (
-    <html>
+    <html style={{ height: "100%" }}>
       <body>
         <CssBaseline />
         <ClientThemeProvider>{props.children}</ClientThemeProvider>
