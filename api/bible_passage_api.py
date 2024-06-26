@@ -150,3 +150,35 @@ class CuvsPassageApi(BiblePassageApi):
                 print('SQLite Connection closed')
 
         return []
+
+
+class PassageList:
+
+    passages = []
+    english_passage_api = KjvPassageApi()
+    chinese_passage_api = CuvsPassageApi()
+
+    def __init__(self, passage: Passage) -> None:
+
+        eng_verses = self.english_passage_api.retrieve_passage(
+            passage)
+        chi_verses = self.chinese_passage_api.retrieve_passage(
+            passage)
+
+        while len(eng_verses) > 0:
+            if int(eng_verses[0][0]) == chi_verses[0][0]:
+                eng_verse = eng_verses.pop(0)
+                chi_verse = chi_verses.pop(0)
+                self.passages.append({
+                    'num': eng_verse[0],
+                    'eng': [eng_verse[1]],
+                    'chi': [chi_verse[1]],
+                })
+            # if one verse its number is smaller, append it to the last in the verses
+            elif int(eng_verses[0][0]) < chi_verses[0][0]:
+                self.passages[-1]['eng'].append(eng_verses.pop(0)[1])
+            elif int(eng_verses[0][0]) > chi_verses[0][0]:
+                self.passages[-1]['chi'].append(chi_verses.pop(0)[1])
+
+    def get(self, lang, num):
+        return "".join(self.passages[num][lang])
