@@ -82,44 +82,48 @@ const PassageForm = (props: {
   };
 
   // ! get books from directory
-  const books = [
-    { value: 1, label: "Genesis" },
-    { value: 2, label: "Exodus" },
-  ];
+  const books = bibleDirectory.map((book) => {
+    return {
+      value: book.bookIndex,
+      label: book.bookName,
+    };
+  });
 
   const getChapterOptions = React.useMemo(() => {
-    return (book: keyof BibleDirectory | undefined) =>
-      !book
-        ? []
-        : bibleDirectory[book].map((chapter) => ({
-            value: chapter.chapterNum,
-            label: chapter.chapterNum,
-          }));
+    return (bookIndex: number | undefined) =>
+      bibleDirectory
+        .find((val) => val.bookIndex == bookIndex)
+        ?.chapters.map((chapter) => ({
+          value: chapter.chapterNum,
+          label: chapter.chapterNum,
+        })) ?? [];
   }, []);
 
   const getStartVerseOptions = React.useMemo(() => {
     return (passage: Passage) =>
-      !passage.book || !passage.chapter
-        ? []
-        : Array.from(
-            Array(
-              bibleDirectory["exodus"][passage.chapter - 1].numOfVerse
-            ).keys()
-          ).map((num) => num + 1);
+      Array.from(
+        Array(
+          bibleDirectory
+            .find((val) => val.bookIndex == passage.book)
+            ?.chapters.find((val) => val.chapterNum == passage.chapter)
+            ?.numOfVerse
+        ).keys()
+      ).map((num) => num + 1);
   }, []);
 
   const getEndVerseOptions = React.useMemo(() => {
     return (passage: Passage) =>
-      !passage.book || !passage.chapter
-        ? []
-        : // ? split this part as its individual function because got duplicate?
-          Array.from(
-            Array(
-              bibleDirectory["genesis"][passage.chapter - 1].numOfVerse
-            ).keys()
-          )
-            .toSpliced(0, passage.startVerse ? passage.startVerse - 1 : 0)
-            .map((num) => num + 1);
+      // ? split this part as its individual function because got duplicate?
+      Array.from(
+        Array(
+          bibleDirectory
+            .find((val) => val.bookIndex == passage.book)
+            ?.chapters.find((val) => val.chapterNum == passage.chapter)
+            ?.numOfVerse
+        ).keys()
+      )
+        .toSpliced(0, passage.startVerse ? passage.startVerse - 1 : 0)
+        .map((num) => num + 1);
   }, []);
 
   return (
@@ -135,7 +139,7 @@ const PassageForm = (props: {
         value={passage.chapter}
         label="Chapter"
         name="chapter"
-        options={getChapterOptions("exodus")}
+        options={getChapterOptions(passage.book)}
         onChange={handleChapterChange}
       ></BasicSelect>
       <BasicSelect
