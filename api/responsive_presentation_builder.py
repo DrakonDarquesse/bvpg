@@ -1,15 +1,18 @@
 from pptx import Presentation
 from data.bible import BibleBookVerbose
 from base import ContextMixin, PresentationBuilder, PresentationTemplateMixin, duplicate_slide, render_slide_data
-from bible_passage_api import CuvsPassageApi, KjvPassageApi
-from models import BibleBook, Passage, Verse
+from bible_passage_api import PassageList
+from models import Passage
 from environment import env
 
 
 class ResponsiveContext(ContextMixin):
     passages: list[Passage] = []
+    combined_verses = []
 
     def get_context(self):
+        passage = self.get_passages()[0]
+        self.combined_verses = PassageList(passage=passage).passages
         return [self.cover(), *self.responsive(), self.responsive_end()]
 
     def get_passages(self):
@@ -29,53 +32,30 @@ class ResponsiveContext(ContextMixin):
 
     def responsive(self):
         slide_contexts = []
-        passage = self.get_passages()[0]
-        english_passage_api = KjvPassageApi()
-        chinese_passage_api = CuvsPassageApi()
-
-        english_verses = english_passage_api.retrieve_passage(
-            passage)
-        chinese_verses = chinese_passage_api.retrieve_passage(
-            passage)
-
-        combined_verses = combine_chi_eng_verses(
-            chinese_verses, english_verses)
-
-        verses_len = len(combined_verses)
+        verses_len = len(self.combined_verses)
 
         range_limit = verses_len if verses_len % 2 == 0 else verses_len - 1
         for i in range(0, range_limit, 2):
             slide_contexts.append({
                 'title': 'responsive',
                 'data': {
-                    'chi_open': "".join(combined_verses[i]['chi']),
-                    'eng_open': "".join(combined_verses[i]['eng']),
-                    'chi_close': "".join(combined_verses[i+1]['chi']),
-                    'eng_close': "".join(combined_verses[i+1]['eng']),
+                    'chi_open': "".join(self.combined_verses[i]['chi']),
+                    'eng_open': "".join(self.combined_verses[i]['eng']),
+                    'chi_close': "".join(self.combined_verses[i+1]['chi']),
+                    'eng_close': "".join(self.combined_verses[i+1]['eng']),
                     'title': ''
                 }
             })
         return slide_contexts
 
-    # TODO: reduces amount of API calls
     def responsive_end(self):
-        passage = self.get_passages()[0]
-        english_passage_api = KjvPassageApi()
-        chinese_passage_api = CuvsPassageApi()
-
-        english_verses = english_passage_api.retrieve_passage(
-            passage)
-        chinese_verses = chinese_passage_api.retrieve_passage(
-            passage)
-        combined_verses = combine_chi_eng_verses(
-            chinese_verses, english_verses)
-        last_index = len(combined_verses) - 1
+        last_index = len(self.combined_verses) - 1
 
         return {
             'title': 'responsive_end',
             'data': {
-                'chi_close': "".join(combined_verses[last_index]['chi']),
-                'eng_close': "".join(combined_verses[last_index]['eng']),
+                'chi_close': "".join(self.combined_verses[last_index]['chi']),
+                'eng_close': "".join(self.combined_verses[last_index]['eng']),
                 'title': ''
             }
         }
@@ -107,26 +87,6 @@ class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMix
 
         duplicate_slide(template_slide, new_slide)
         render_slide_data(new_slide, context, env)
-
-
-def combine_chi_eng_verses(chi_verses: list, eng_verses: list):
-    verses = []
-    while len(eng_verses) > 0:
-        if int(eng_verses[0][0]) == chi_verses[0][0]:
-            eng_verse = eng_verses.pop(0)
-            chi_verse = chi_verses.pop(0)
-            verses.append({
-                'num': eng_verse[0],
-                'eng': [eng_verse[1]],
-                'chi': [chi_verse[1]],
-            })
-        # if one verse its number is smaller, append it to the last in the verses
-        elif int(eng_verses[0][0]) < chi_verses[0][0]:
-            verses[-1]['eng'].append(eng_verses.pop(0)[1])
-        elif int(eng_verses[0][0]) > chi_verses[0][0]:
-            verses[-1]['chi'].append(chi_verses.pop(0)[1])
-    return verses
-
 
 # passages = [Passage(book=BibleBook.proverbs, start_verse=Verse(
 #     chapter=16, verse=1), end_verse=Verse(chapter=16, verse=8))]
