@@ -1,12 +1,11 @@
 "use client";
 
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { SelectChangeEvent } from "@mui/material/Select";
 import React from "react";
 import BasicSelect from "./basic-select";
-import bibleDirectory, {
-  type BibleDirectory,
-} from "../../../public/data/bible-directory";
+import bibleDirectory from "../../../public/data/bible-directory";
 
 // ? add id because the parent component need to identify
 type Passage = {
@@ -31,7 +30,7 @@ const PassageForm = (props: {
         }
   );
 
-  const handleSubmit = (next: (passage: Passage) => void) => {
+  const handleSubmit = (next: (passage: Passage) => void) => () => {
     if (
       passage.book &&
       passage.chapter &&
@@ -39,7 +38,17 @@ const PassageForm = (props: {
       passage.startVerse
     ) {
       next(passage);
+      handleClearForm();
     }
+  };
+
+  const handleClearForm = () => {
+    setPassage(() => ({
+      book: undefined,
+      chapter: undefined,
+      startVerse: undefined,
+      endVerse: undefined,
+    }));
   };
 
   const handleBookChange = (event: SelectChangeEvent<number>) => {
@@ -81,7 +90,6 @@ const PassageForm = (props: {
     }));
   };
 
-  // ! get books from directory
   const books = bibleDirectory.map((book) => {
     return {
       value: book.bookIndex,
@@ -127,7 +135,13 @@ const PassageForm = (props: {
   }, []);
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
       <BasicSelect
         value={passage.book}
         label="Book"
@@ -156,8 +170,9 @@ const PassageForm = (props: {
         name="endVerse"
         onChange={handleEndVerseChange}
       ></BasicSelect>
-      <Button onClick={() => handleSubmit(props.onSave)}>Save</Button>
-    </>
+      <Button onClick={handleSubmit(props.onSave)}>Save</Button>
+      <Button onClick={handleClearForm}>Clear</Button>
+    </Box>
   );
 };
 
