@@ -32,7 +32,7 @@ const ResponsiveReading = () => {
     });
 
     setEditingPassageId(() => null);
-    setFormEnabled(() => false);
+    setFormEnabled(() => true);
   };
 
   const addPassage = () => setFormEnabled(() => true);
@@ -47,7 +47,6 @@ const ResponsiveReading = () => {
       setFormEnabled(() => true);
     };
 
-  // TODO: exodus to number
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const res = await fetch("/api/bible-reading", {
       method: "POST",
@@ -98,17 +97,49 @@ const ResponsiveReading = () => {
     <Box
       sx={{
         display: "flex",
-        gap: 1,
-        "& > div": {
-          flex: "100%",
-        },
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 4,
+        height: "100%",
+        // "& > div": {
+        //   flex: "100%",
+        // },
       }}
     >
       <Box
         sx={{
           width: "100%",
           maxWidth: 360,
+          padding: 4,
+          border: 2,
+          borderRadius: 2,
+          borderColor: "grey",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {formEnabled && (
+            <PassageForm
+              passage={passages.find((p) => p.id == editingPassageId)?.passage}
+              onSave={passageFormHandler}
+            ></PassageForm>
+          )}
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          // height: "100%",
+          maxWidth: 360,
           padding: 2,
+          border: 2,
+          borderRadius: 2,
+          borderColor: "grey",
         }}
       >
         {passages.length > 0 && (
@@ -134,32 +165,6 @@ const ResponsiveReading = () => {
             })}
           </List>
         )}
-        <Button onClick={addPassage} disabled={formEnabled}>
-          Add
-        </Button>
-      </Box>
-      <Box>
-        {!formEnabled ? (
-          ""
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              padding: 2,
-            }}
-          >
-            <PassageForm
-              passage={passages.find((p) => p.id == editingPassageId)?.passage}
-              onSave={passageFormHandler}
-            ></PassageForm>
-            <Button onClick={handleCancel}>Cancel</Button>
-          </Box>
-        )}
-      </Box>
-      <Box>
-        <Button onClick={handleSubmit}>POST Request</Button>
       </Box>
     </Box>
   );
