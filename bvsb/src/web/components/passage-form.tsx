@@ -15,20 +15,13 @@ type Passage = {
   endVerse: number | undefined;
 };
 
-const PassageForm = (props: {
-  passage: Passage | undefined;
-  onSave: (passage: Passage) => void;
-}) => {
-  const [passage, setPassage] = React.useState<Passage>(
-    props.passage
-      ? props.passage
-      : {
-          book: undefined,
-          chapter: undefined,
-          startVerse: undefined,
-          endVerse: undefined,
-        }
-  );
+const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
+  const [passage, setPassage] = React.useState<Passage>({
+    book: undefined,
+    chapter: undefined,
+    startVerse: undefined,
+    endVerse: undefined,
+  });
 
   const handleSubmit = (next: (passage: Passage) => void) => () => {
     if (
