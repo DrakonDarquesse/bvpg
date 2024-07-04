@@ -7,6 +7,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import PassageForm, { Passage } from "@/web/components/passage-form";
+import Typography from "@mui/material/Typography";
 
 const BibleReading = () => {
   const [passages, setPassages] = React.useState<
@@ -66,56 +67,68 @@ const BibleReading = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        gap: 4,
         height: "100%",
-        "& > div": {
-          maxWidth: 360,
-          padding: 4,
-          border: 2,
-          borderRadius: 2,
-          borderColor: "grey",
-        },
       }}
     >
       <Box
         sx={{
           width: "100%",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 4,
+          padding: 4,
+          justifyContent: "center",
+          "& > div": {
+            maxWidth: "400px",
+            minWidth: "280px",
+            padding: 4,
+            border: 2,
+            borderRadius: 2,
+            borderColor: "grey",
+          },
         }}
       >
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
+            width: "100%",
           }}
         >
           <PassageForm onSave={passageFormHandler}></PassageForm>
         </Box>
-      </Box>
-      <Box
-        sx={{
-          width: "100%",
-          // height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {passages.length > 0 && (
-          <List>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Typography>Build List:</Typography>
+          <List
+            sx={{
+              flex: 1,
+            }}
+          >
             {passages.map(({ passage, id }, index) => {
               return (
-                <ListItem key={index}>
+                <ListItem
+                  key={index}
+                  sx={{
+                    px: 0,
+                  }}
+                >
                   <ListItemText>
                     {passage.book} {passage.chapter}: {passage.startVerse}-
                     {passage.endVerse}
                   </ListItemText>
-                  <Button onClick={deletePassage(id)}>Delete</Button>
+                  <Button onClick={deletePassage(id)}>x</Button>
                 </ListItem>
               );
             })}
           </List>
-        )}
-        <Button onClick={handleSubmit}>Build</Button>
+          <Button onClick={handleSubmit} disabled={passages.length <= 0}>
+            Build
+          </Button>
+        </Box>
       </Box>
     </Box>
   );
