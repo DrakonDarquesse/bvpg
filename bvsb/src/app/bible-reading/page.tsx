@@ -8,6 +8,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import PassageForm, { Passage } from "@/web/components/passage-form";
 import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
 
 const BibleReading = () => {
   const [passages, setPassages] = React.useState<
@@ -65,21 +66,34 @@ const BibleReading = () => {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100%",
+        justifyContent: "safe center",
+        alignItems: "safe center",
+        flexDirection: "column",
+        gap: 2,
+        minHeight: "100%",
+        px: 18,
       }}
     >
       <Box
         sx={{
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          gap: 4,
+          width: "100%",
+        }}
+      >
+        <Typography>Slide Builder</Typography>
+        <Select size="small"></Select>
+      </Box>
+      <Box
+        sx={{
           width: "100%",
           display: "flex",
-          flexWrap: "wrap",
-          gap: 4,
-          padding: 4,
+          // flexWrap: "wrap",
+          gap: 6,
           justifyContent: "center",
           "& > div": {
-            maxWidth: "400px",
             minWidth: "280px",
             padding: 4,
             border: 2,
