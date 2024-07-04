@@ -8,44 +8,16 @@ import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import PassageForm, { Passage } from "@/web/components/passage-form";
 
-const ResponsiveReading = () => {
+const BibleReading = () => {
   const [passages, setPassages] = React.useState<
     { passage: Passage; id: number }[]
   >([]);
 
-  const [editingPassageId, setEditingPassageId] = React.useState<number | null>(
-    null
-  );
-  const [formEnabled, setFormEnabled] = React.useState<boolean>(true);
-
   const passageFormHandler = (passage: Passage) => {
     setPassages((passages) => {
-      console.log(editingPassageId);
-      return editingPassageId != null
-        ? passages.map((p) => {
-            if (p.id == editingPassageId) {
-              return { passage, id: editingPassageId };
-            }
-            return p;
-          })
-        : [...passages, { passage, id: passages.length }];
+      return [...passages, { passage, id: passages.length }];
     });
-
-    setEditingPassageId(() => null);
-    setFormEnabled(() => true);
   };
-
-  const addPassage = () => setFormEnabled(() => true);
-
-  const editPassage =
-    (passage: { passage: Passage; id: number }) =>
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      console.log(passage);
-      setEditingPassageId(() => {
-        return passage.id;
-      });
-      setFormEnabled(() => true);
-    };
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const res = await fetch("/api/bible-reading", {
@@ -81,11 +53,6 @@ const ResponsiveReading = () => {
     }
   };
 
-  const handleCancel = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    setEditingPassageId(() => null);
-    setFormEnabled(() => false);
-  };
-
   const deletePassage =
     (passageId: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
       setPassages((passages) => {
@@ -101,19 +68,18 @@ const ResponsiveReading = () => {
         alignItems: "center",
         gap: 4,
         height: "100%",
-        // "& > div": {
-        //   flex: "100%",
-        // },
-      }}
-    >
-      <Box
-        sx={{
-          width: "100%",
+        "& > div": {
           maxWidth: 360,
           padding: 4,
           border: 2,
           borderRadius: 2,
           borderColor: "grey",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
         }}
       >
         <Box
@@ -123,51 +89,36 @@ const ResponsiveReading = () => {
             gap: 2,
           }}
         >
-          {formEnabled && (
-            <PassageForm
-              passage={passages.find((p) => p.id == editingPassageId)?.passage}
-              onSave={passageFormHandler}
-            ></PassageForm>
-          )}
+          <PassageForm onSave={passageFormHandler}></PassageForm>
         </Box>
       </Box>
       <Box
         sx={{
           width: "100%",
           // height: "100%",
-          maxWidth: 360,
-          padding: 2,
-          border: 2,
-          borderRadius: 2,
-          borderColor: "grey",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {passages.length > 0 && (
           <List>
             {passages.map(({ passage, id }, index) => {
               return (
-                <ListItem key={index} sx={{}}>
+                <ListItem key={index}>
                   <ListItemText>
                     {passage.book} {passage.chapter}: {passage.startVerse}-
                     {passage.endVerse}
                   </ListItemText>
-                  <Button
-                    onClick={editPassage({ passage, id })}
-                    disabled={formEnabled}
-                  >
-                    Edit
-                  </Button>
-                  <Button onClick={deletePassage(id)} disabled={formEnabled}>
-                    Delete
-                  </Button>
+                  <Button onClick={deletePassage(id)}>Delete</Button>
                 </ListItem>
               );
             })}
           </List>
         )}
+        <Button onClick={handleSubmit}>Build</Button>
       </Box>
     </Box>
   );
 };
 
-export default ResponsiveReading;
+export default BibleReading;
