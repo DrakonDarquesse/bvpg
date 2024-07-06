@@ -106,7 +106,7 @@ const BibleReading = () => {
         }}
       >
         <Typography>Slide Builder</Typography>
-        <Select size="small" onChange={handleSlideTypeChange}>
+        <Select size="small" onChange={handleSlideTypeChange} value={slideType}>
           {Object.values(slideTypeData).map((slideType, index) => {
             return (
               <MenuItem key={index} value={slideType.value}>
