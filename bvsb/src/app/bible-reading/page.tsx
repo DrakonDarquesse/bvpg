@@ -8,12 +8,34 @@ import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import PassageForm, { Passage } from "@/web/components/passage-form";
 import Typography from "@mui/material/Typography";
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const BibleReading = () => {
   const [passages, setPassages] = React.useState<
     { passage: Passage; id: number }[]
   >([]);
+
+  const slideTypeData = {
+    bibleReading: {
+      label: "Bible Reading",
+      value: "bible-reading",
+    },
+
+    responsiveReading: {
+      label: "Responsive Reading",
+      value: "responsive-reading",
+    },
+  };
+
+  const [slideType, setSlideType] = React.useState<string>(
+    slideTypeData.bibleReading.value
+  );
+
+  const handleSlideTypeChange = (event: SelectChangeEvent) => {
+    const value = event.target.value;
+    setSlideType(() => value);
+  };
 
   const passageFormHandler = (passage: Passage) => {
     setPassages((passages) => {
@@ -22,7 +44,7 @@ const BibleReading = () => {
   };
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const res = await fetch("/api/bible-reading", {
+    const res = await fetch(`/api/${slideType}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,7 +106,15 @@ const BibleReading = () => {
         }}
       >
         <Typography>Slide Builder</Typography>
-        <Select size="small"></Select>
+        <Select size="small" onChange={handleSlideTypeChange}>
+          {Object.values(slideTypeData).map((slideType, index) => {
+            return (
+              <MenuItem key={index} value={slideType.value}>
+                {slideType.label}
+              </MenuItem>
+            );
+          })}
+        </Select>
       </Box>
       <Box
         sx={{
