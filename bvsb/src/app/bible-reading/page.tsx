@@ -88,12 +88,13 @@ const BibleReading = () => {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "safe center",
+        justifyContent: "space-between",
         alignItems: "safe center",
         flexDirection: "column",
         gap: 2,
         minHeight: "100%",
         px: 18,
+        py: 4,
       }}
     >
       <Box
