@@ -14,6 +14,7 @@ import Link from "@mui/material/Link";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MailIcon from "@mui/icons-material/Mail";
 import useTheme from "@mui/material/styles/useTheme";
+import Header from "@/web/components/header";
 
 const BibleReading = () => {
   const theme = useTheme();
@@ -100,110 +101,61 @@ const BibleReading = () => {
         gap: 2,
         minHeight: "100%",
         px: 18,
-        py: 4,
+        py: {
+          xl: 4,
+          xs: 1.5,
+        },
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 4,
-          width: "100%",
-          "& > div": {
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 1,
-          },
-        }}
-      >
-        <Box>
-          <Typography
-            sx={{
-              p: 1,
-              borderRadius: 2,
-              lineHeight: 1.5,
-              ":hover": {
-                bgcolor: "primary.light",
-              },
-            }}
-            variant="h5"
-          >
-            Slide Builder
-          </Typography>
-          {/* TODO: change to use menu component instead */}
-          <Select
-            onChange={handleSlideTypeChange}
-            value={slideType}
-            sx={{
-              fontSize: theme.typography.h5,
-              "& .MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                border: "none",
-              },
-              "&:hover": {
-                bgcolor: "primary.light",
-              },
-              "& .MuiSelect-select": {
-                py: 1,
-                lineHeight: 1.5,
-              },
-            }}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  borderRadius: 3,
-                  "& .MuiMenuItem-root": {
-                    padding: 2,
-                    fontSize: theme.typography.h4,
-                  },
-                },
-                elevation: 1,
-              },
-              anchorOrigin: {
-                vertical: "bottom",
-                horizontal: "left",
-              },
-              transformOrigin: {
-                vertical: "top",
-                horizontal: "left",
-              },
-            }}
-          >
-            {Object.values(slideTypeData).map((slideType, index) => {
-              return (
-                <MenuItem key={index} value={slideType.value}>
-                  {slideType.label}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </Box>
-        <Box
+      <Header>
+        <Select
+          onChange={handleSlideTypeChange}
+          value={slideType}
+          className="headerItem"
           sx={{
-            "> a": {
-              display: "flex",
-              justifyContent: "center",
-              p: 1,
-              borderRadius: 2,
-              fontSize: theme.typography.h4,
-              ":hover": {
-                bgcolor: "primary.light",
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "& .MuiSelect-select": {
+              p: 0,
+            },
+          }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                borderRadius: 3,
+                "& .MuiMenuItem-root": {
+                  padding: 2,
+                  fontSize: theme.typography.h6,
+                },
               },
+              elevation: 1,
+            },
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "left",
+            },
+            transformOrigin: {
+              vertical: "top",
+              horizontal: "left",
             },
           }}
         >
-          <Link href="#" underline="none">
-            About
-          </Link>
-        </Box>
-      </Box>
+          {Object.values(slideTypeData).map((slideType, index) => {
+            return (
+              <MenuItem key={index} value={slideType.value}>
+                {slideType.label}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </Header>
       <Box
         sx={{
           width: "100%",
@@ -214,7 +166,10 @@ const BibleReading = () => {
           "& > div": {
             minWidth: "280px",
             maxWidth: "400px",
-            padding: 4,
+            p: {
+              xl: 4,
+              xs: 3,
+            },
             bgcolor: "primary.light",
             borderRadius: 2,
           },
@@ -274,7 +229,7 @@ const BibleReading = () => {
             justifyContent: "center",
             p: 1,
             borderRadius: 2,
-            fontSize: theme.typography.h3,
+            fontSize: theme.typography.h5,
             ":hover": {
               bgcolor: "primary.light",
             },
