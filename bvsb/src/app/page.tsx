@@ -10,8 +10,14 @@ import PassageForm, { Passage } from "@/web/components/passage-form";
 import Typography from "@mui/material/Typography";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Link from "@mui/material/Link";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import InfoIcon from "@mui/icons-material/Info";
+import useTheme from "@mui/material/styles/useTheme";
 
 const BibleReading = () => {
+  const theme = useTheme();
+
   const [passages, setPassages] = React.useState<
     { passage: Passage; id: number }[]
   >([]);
@@ -89,7 +95,7 @@ const BibleReading = () => {
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "safe center",
+        alignItems: "flex-start",
         flexDirection: "column",
         gap: 2,
         minHeight: "100%",
@@ -100,36 +106,120 @@ const BibleReading = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
           alignItems: "center",
           gap: 4,
           width: "100%",
+          "& > div": {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 1,
+          },
         }}
       >
-        <Typography>Slide Builder</Typography>
-        <Select size="small" onChange={handleSlideTypeChange} value={slideType}>
-          {Object.values(slideTypeData).map((slideType, index) => {
-            return (
-              <MenuItem key={index} value={slideType.value}>
-                {slideType.label}
-              </MenuItem>
-            );
-          })}
-        </Select>
+        <Box>
+          <Typography
+            sx={{
+              p: 1,
+              borderRadius: 2,
+              lineHeight: 1.5,
+              ":hover": {
+                bgcolor: "primary.light",
+              },
+            }}
+            variant="h5"
+          >
+            Slide Builder
+          </Typography>
+          {/* TODO: change to use menu component instead */}
+          <Select
+            onChange={handleSlideTypeChange}
+            value={slideType}
+            sx={{
+              fontSize: theme.typography.h5,
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "&:hover": {
+                bgcolor: "primary.light",
+              },
+              "& .MuiSelect-select": {
+                py: 1,
+                lineHeight: 1.5,
+              },
+            }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  borderRadius: 3,
+                  "& .MuiMenuItem-root": {
+                    padding: 2,
+                    fontSize: theme.typography.h4,
+                  },
+                },
+                elevation: 1,
+              },
+              anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "left",
+              },
+              transformOrigin: {
+                vertical: "top",
+                horizontal: "left",
+              },
+            }}
+          >
+            {Object.values(slideTypeData).map((slideType, index) => {
+              return (
+                <MenuItem key={index} value={slideType.value}>
+                  {slideType.label}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </Box>
+        <Box
+          sx={{
+            "> a": {
+              display: "flex",
+              justifyContent: "center",
+              p: 1,
+              borderRadius: 2,
+              fontSize: theme.typography.h4,
+              ":hover": {
+                bgcolor: "primary.light",
+              },
+            },
+          }}
+        >
+          <Link href="#">
+            <InfoIcon fontSize="inherit"></InfoIcon>
+          </Link>
+          <Link href="https://github.com/DrakonDarquesse/bvpg">
+            <GitHubIcon fontSize="inherit"></GitHubIcon>
+          </Link>
+        </Box>
       </Box>
       <Box
         sx={{
           width: "100%",
           display: "flex",
-          // flexWrap: "wrap",
+          flexWrap: "wrap",
           gap: 6,
-          justifyContent: "center",
+          // justifyContent: "center",
           "& > div": {
             minWidth: "280px",
+            maxWidth: "400px",
             padding: 4,
-            border: 2,
+            bgcolor: "primary.light",
             borderRadius: 2,
-            borderColor: "grey",
           },
         }}
       >
@@ -175,6 +265,7 @@ const BibleReading = () => {
           </Button>
         </Box>
       </Box>
+      <Box sx={{}}></Box>
     </Box>
   );
 };
