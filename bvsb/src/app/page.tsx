@@ -12,7 +12,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Link from "@mui/material/Link";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import InfoIcon from "@mui/icons-material/Info";
+import MailIcon from "@mui/icons-material/Mail";
 import useTheme from "@mui/material/styles/useTheme";
 
 const BibleReading = () => {
@@ -95,7 +95,7 @@ const BibleReading = () => {
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "flex-start",
+        alignItems: "center",
         flexDirection: "column",
         gap: 2,
         minHeight: "100%",
@@ -199,11 +199,8 @@ const BibleReading = () => {
             },
           }}
         >
-          <Link href="#">
-            <InfoIcon fontSize="inherit"></InfoIcon>
-          </Link>
-          <Link href="https://github.com/DrakonDarquesse/bvpg">
-            <GitHubIcon fontSize="inherit"></GitHubIcon>
+          <Link href="#" underline="none">
+            About
           </Link>
         </Box>
       </Box>
@@ -213,7 +210,7 @@ const BibleReading = () => {
           display: "flex",
           flexWrap: "wrap",
           gap: 6,
-          // justifyContent: "center",
+          justifyContent: "center",
           "& > div": {
             minWidth: "280px",
             maxWidth: "400px",
@@ -265,7 +262,32 @@ const BibleReading = () => {
           </Button>
         </Box>
       </Box>
-      <Box sx={{}}></Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-start",
+          gap: 1,
+          alignItems: "center",
+          width: "100%",
+          "> a": {
+            display: "flex",
+            justifyContent: "center",
+            p: 1,
+            borderRadius: 2,
+            fontSize: theme.typography.h3,
+            ":hover": {
+              bgcolor: "primary.light",
+            },
+          },
+        }}
+      >
+        <Link href="mailto:mingliangzheng17@gmail.com">
+          <MailIcon fontSize="inherit"></MailIcon>
+        </Link>
+        <Link href="https://github.com/DrakonDarquesse/bvpg">
+          <GitHubIcon fontSize="inherit"></GitHubIcon>
+        </Link>
+      </Box>
     </Box>
   );
 };
