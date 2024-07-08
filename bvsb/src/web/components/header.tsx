@@ -33,7 +33,9 @@ const Header = (props: PropsWithChildren) => {
       }}
     >
       <Box sx={{}}>
-        <Link className="headerItem">Slide Builder</Link>
+        <Link className="headerItem" href="/">
+          Slide Builder
+        </Link>
         {props.children}
       </Box>
       <Box>
