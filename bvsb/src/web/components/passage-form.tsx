@@ -1,11 +1,11 @@
 "use client";
 
-import Button from "@mui/material/Button";
+import React from "react";
 import Box from "@mui/material/Box";
 import { SelectChangeEvent } from "@mui/material/Select";
-import React from "react";
 import BasicSelect from "./basic-select";
 import bibleDirectory from "../../../public/data/bible-directory";
+import CustomButton from "./custom-button";
 
 // ? add id because the parent component need to identify
 type Passage = {
@@ -163,8 +163,8 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
         name="endVerse"
         onChange={handleEndVerseChange}
       ></BasicSelect>
-      <Button onClick={handleSubmit(props.onSave)}>Save</Button>
-      <Button onClick={handleClearForm}>Clear</Button>
+      <CustomButton onClick={handleSubmit(props.onSave)}>Save</CustomButton>
+      <CustomButton onClick={handleClearForm}>Clear</CustomButton>
     </Box>
   );
 };

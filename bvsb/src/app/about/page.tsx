@@ -5,24 +5,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Header from "@/web/components/header";
 import Footer from "@/web/components/footer";
+import CustomBox from "@/web/components/custom-box";
 
 const About = () => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexDirection: "column",
-        gap: 2,
-        minHeight: "100%",
-        px: 18,
-        py: {
-          xl: 4,
-          xs: 1.5,
-        },
-      }}
-    >
+    <>
       <Header></Header>
       <Box
         sx={{
@@ -40,18 +27,10 @@ const About = () => {
               xl: "400px",
             },
             width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            p: {
-              xl: 4,
-              xs: 3,
-            },
-            bgcolor: "primary.light",
-            borderRadius: 2,
           },
         }}
       >
-        <Box>
+        <CustomBox>
           <Typography variant="subtitle1">What's this for</Typography>
           <Typography>
             {`
@@ -59,8 +38,8 @@ const About = () => {
             Slide Builder can create slides for bible reading and responsive reading, which are parts of the flow of a Methodist worship service.s 
               `}
           </Typography>
-        </Box>
-        <Box>
+        </CustomBox>
+        <CustomBox>
           <Typography variant="subtitle1">Why</Typography>
           <Typography>
             {`
@@ -69,18 +48,18 @@ const About = () => {
               So, this project came into being to make my life easier, and hopefully the subsequent persons in charge of making the slides.
               `}
           </Typography>
-        </Box>
-        <Box>
+        </CustomBox>
+        <CustomBox>
           <Typography variant="subtitle1">How to Use</Typography>
           <Typography>
             {`
                 Fill in the bible passage form and submit. The bible passage will show up at the build list. Click Build and it will call the API which will return the PowerPoint slides. The format of the slides is based on the template given.
             `}
           </Typography>
-        </Box>
+        </CustomBox>
       </Box>
       <Footer></Footer>
-    </Box>
+    </>
   );
 };
 

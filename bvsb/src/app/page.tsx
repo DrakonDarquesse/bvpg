@@ -1,18 +1,20 @@
 "use client";
 
 import React from "react";
-import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
-import PassageForm, { Passage } from "@/web/components/passage-form";
 import Typography from "@mui/material/Typography";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import useTheme from "@mui/material/styles/useTheme";
 import Header from "@/web/components/header";
 import Footer from "@/web/components/footer";
+import ClearIcon from "@mui/icons-material/Clear";
+import PassageForm, { Passage } from "@/web/components/passage-form";
+import CustomButton from "@/web/components/custom-button";
+import CustomBox from "@/web/components/custom-box";
 
 const BibleReading = () => {
   const theme = useTheme();
@@ -83,28 +85,14 @@ const BibleReading = () => {
   };
 
   const deletePassage =
-    (passageId: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    (passageId: number) => (event: React.MouseEvent<HTMLElement>) => {
       setPassages((passages) => {
         return passages.filter((p) => p.id != passageId);
       });
     };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexDirection: "column",
-        gap: 2,
-        minHeight: "100%",
-        px: 18,
-        py: {
-          xl: 4,
-          xs: 1.5,
-        },
-      }}
-    >
+    <>
       <Header>
         <Select
           onChange={handleSlideTypeChange}
@@ -173,14 +161,14 @@ const BibleReading = () => {
           },
         }}
       >
-        <Box
+        <CustomBox
           sx={{
             width: "100%",
           }}
         >
           <PassageForm onSave={passageFormHandler}></PassageForm>
-        </Box>
-        <Box
+        </CustomBox>
+        <CustomBox
           sx={{
             width: "100%",
             display: "flex",
@@ -205,18 +193,32 @@ const BibleReading = () => {
                     {passage.book} {passage.chapter}: {passage.startVerse}-
                     {passage.endVerse}
                   </ListItemText>
-                  <Button onClick={deletePassage(id)}>x</Button>
+                  <Box
+                    onClick={deletePassage(id)}
+                    sx={{
+                      p: 0.5,
+                      borderRadius: 1,
+                      display: "flex",
+                      justifyContent: "center",
+                      ":hover": {
+                        bgcolor: "white",
+                      },
+                      cursor: "pointer",
+                    }}
+                  >
+                    <ClearIcon color="primary"></ClearIcon>
+                  </Box>
                 </ListItem>
               );
             })}
           </List>
-          <Button onClick={handleSubmit} disabled={passages.length <= 0}>
+          <CustomButton onClick={handleSubmit} disabled={passages.length <= 0}>
             Build
-          </Button>
-        </Box>
+          </CustomButton>
+        </CustomBox>
       </Box>
       <Footer></Footer>
-    </Box>
+    </>
   );
 };
 
