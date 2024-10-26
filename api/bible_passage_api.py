@@ -5,8 +5,13 @@ import sqlite3
 from typing import Callable
 from pydantic_core import Url
 import requests
+
+from bibleapi.scripture.bibleid import BibleID
+from bibleapi.scripture.contenttype import ContentType
+from bibleapi.scripture.passage import get_passage
+from utils import get_passage_content
 from data.bible import BibleBook
-from models import Passage
+from models import Passage, Verse
 
 
 def match_number_and_verse_pair(passage):
@@ -48,18 +53,16 @@ def get_verse(chapter_verse: str):
 
 class BiblePassageApi:
 
-    error_handler: Callable | None = None
-
-    def get_api(self, passage: Passage) -> Url:
-        raise NotImplementedError("Should have implemented this")
-
     def retrieve_passage(self, passage: Passage, *args, **kwargs):
         raise NotImplementedError("Should have implemented this")
 
 
 class KjvPassageApi(BiblePassageApi):
-    bible = 'de4e12af7f28f599-01'
+
+    # todo: just pass bible_id at initialization
+
     api_key: str = config("API_KEY")  # type: ignore
+
     book_code = {
         BibleBook.genesis: 'GEN',
         BibleBook.exodus: 'EXO',
@@ -127,6 +130,19 @@ class KjvPassageApi(BiblePassageApi):
         BibleBook.jude: 'JUD',
         BibleBook.revelation: 'REV',
     }
+
+    def format_passage_param(self, passage: Passage):
+        book = self.book_code.get(passage.book)
+        return f'{book}.{passage.start_verse.chapter}.{passage.start_verse.verse}-{book}.{passage.end_verse.chapter}.{passage.end_verse.verse}'
+
+    def retrieve_passage(self, passage: Passage, *args, **kwargs):
+        content = get_passage_content(
+            self.api_key,
+            bible_id=BibleID.KJV,
+            passage=self.format_passage_param(passage)
+        )
+        return match_number_and_verse_pair(content)
+
 
     class BookCode(int, Enum):
         GEN = BibleBook.genesis
@@ -228,6 +244,7 @@ class PassageList:
 
     def __init__(self, passage: Passage) -> None:
 
+        self.passages = []
         eng_verses = self.english_passage_api.retrieve_passage(
             passage)
         chi_verses = self.chinese_passage_api.retrieve_passage(
