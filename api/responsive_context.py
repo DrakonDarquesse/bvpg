@@ -1,25 +1,21 @@
-from pptx import Presentation
 from data.bible import BibleBookVerbose
-from base import ContextMixin, PresentationBuilder, PresentationTemplateMixin, duplicate_slide, render_slide_data
+from base import Context
 from bible_passage_api import PassageList
 from models import Passage
-from environment import env
 
 
-class ResponsiveContext(ContextMixin):
-    passages: list[Passage] = []
-    combined_verses = []
+class ResponsiveContext(Context):
+    def __init__(self, passages: list[Passage]) -> None:
+        self.passages = passages
+        self.combined_verses = []
 
     def get_context(self):
-        passage = self.get_passages()[0]
+        passage = self.passages[0]
         self.combined_verses = PassageList(passage=passage).passages
         return [self.cover(), *self.responsive(), self.responsive_end()]
 
-    def get_passages(self):
-        return self.passages
-
     def cover(self):
-        passage = self.get_passages()[0]
+        passage = self.passages[0]
         return {
             'title': 'cover',
             'data': {
@@ -59,38 +55,3 @@ class ResponsiveContext(ContextMixin):
                 'title': ''
             }
         }
-
-
-class ResponsivePresentationBuilder(PresentationBuilder, PresentationTemplateMixin, ResponsiveContext):
-    template = Presentation("template/responsive_reading.pptx")
-
-    def __init__(self, save_file_name: str = 'slide.pptx', base_name: str | None = None, passages: list[Passage] = []) -> None:
-        super().__init__()
-        self.save_file_name = save_file_name
-        self.base_file = Presentation(base_name)
-        self.passages = passages
-
-    def build(self):
-        """
-        get slide templates and use them to add new slide to base file
-        """
-
-        print("start building slides")
-        contexts = self.get_context()
-        for context in contexts:
-            self.build_slide(context)
-
-    def build_slide(self, context):
-        print(context["title"])
-        template_slide = self.get_slide(context["title"])
-        new_slide = self.new_slide()
-
-        duplicate_slide(template_slide, new_slide)
-        render_slide_data(new_slide, context, env)
-
-# passages = [Passage(book=BibleBook.proverbs, start_verse=Verse(
-#     chapter=16, verse=1), end_verse=Verse(chapter=16, verse=8))]
-# slide = ResponsivePresentationBuilder(
-#     base_name="template/base_wide.pptx", passages=passages)
-# slide.build()
-# slide.save_file()
