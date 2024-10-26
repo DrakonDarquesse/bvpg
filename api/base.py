@@ -1,5 +1,9 @@
-from jinja2 import Environment
+from enum import Enum
+from typing import Type
+from pptx import Presentation as ppt
+from pptx.presentation import Presentation, Slides
 from pptx.enum.dml import MSO_FILL  # type: ignore
+from environment import env
 
 
 def duplicate_shape(source_shape, target_shape):
@@ -87,50 +91,77 @@ def render_slide_data(slide, context, env):
                     run.text).render(context['data'])
 
 
-class PresentationTemplateMixin:
-    template = None
-    slides = []
+class PresentationTemplate:
 
-    def __init__(self) -> None:
-        self.slides = self.get_slides()
+    def __init__(self, template: Presentation) -> None:
+        if not isinstance(template, Presentation):
+            raise Exception("Wrong template")
+        self.template = template
+        self.slides = self.get_titled_slides()
 
-    def get_template(self):
-        return self.template
-
-    def get_slides(self):
+    def get_titled_slides(self):
+        """
+        only returns slide with title
+        """
         print("getting slides")
-        # only returns slide with title
-        return list(filter(lambda slide: bool(slide.shapes.title), self.get_template().slides))
 
-    def get_slide(self, title):
-        return next(
-            (slide for slide in self.slides if slide.shapes.title.text == title))
+        template_slides: Slides = self.template.slides  # type: ignore
+        return list(filter(lambda slide: bool(slide.shapes.title), template_slides))
+
+    def get_slide_by_title(self, title):
+        try:
+            return next(
+                (slide for slide in self.slides if slide.shapes.title.text == title))
+        except:
+            raise Exception(f"no slide with the title {title}")
 
 
-# TODO: set as enum or something? or just park it under presentation builder
-TITLE_SLIDE_LAYOUT_INDEX = 5
+class BlankPresentation:
+    class SlideLayout(int, Enum):
+        TITLE_SLIDE = 5
 
+    def __init__(self, save_file_name: str | None = None) -> None:
+        self.base_file = ppt("template/base_wide.pptx")
+        self.save_file_name = save_file_name
 
-class PresentationBuilder:
-    base_file = None
-    save_file_name: str | None = None
+    def save_file(self, file_name=None):
+        self.base_file.save(file_name or self.save_file_name)
+
+    def new_title_slide(self):
+        base_file = self.base_file
+        return base_file.slides.add_slide(
+            base_file.slide_layouts[self.SlideLayout.TITLE_SLIDE])
 
     def get_base_file(self):
         return self.base_file
 
-    def save_file(self):
-        self.base_file.save(self.save_file_name)
 
-    def new_slide(self):
-        base_file = self.get_base_file()
-        return base_file.slides.add_slide(
-            base_file.slide_layouts[TITLE_SLIDE_LAYOUT_INDEX])
-
-    def build(self):
-        raise NotImplementedError("Should have implemented this")
-
-
-class ContextMixin:
+class Context:
 
     def get_context(self):
         raise NotImplementedError("Should have implemented this")
+
+
+class PresentationBuilder():
+
+    def __init__(self, presentation: BlankPresentation, template: PresentationTemplate, context: Context) -> None:
+        self.presentation = presentation
+        self.template = template
+        self.context = context
+
+    def build(self):
+        """
+        get slide templates and use them to add new slide to base file
+        """
+
+        print("start building slides")
+        contexts = self.context.get_context()
+        for context in contexts:
+            self.build_slide(context)
+
+    def build_slide(self, context):
+        template_slide = self.template.get_slide_by_title(context["title"])
+        new_slide = self.presentation.new_title_slide()
+
+        duplicate_slide(template_slide, new_slide)
+        render_slide_data(new_slide, context, env)
