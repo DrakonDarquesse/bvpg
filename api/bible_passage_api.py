@@ -1,23 +1,22 @@
 from enum import Enum
 from decouple import config
 import re
-import sqlite3
 from typing import Callable
 from pydantic_core import Url
 import requests
 
 from bibleapi.scripture.bibleid import BibleID
-from bibleapi.scripture.contenttype import ContentType
-from bibleapi.scripture.passage import get_passage
 from utils import get_passage_content
 from data.bible import BibleBook
 from models import Passage, Verse
+from mongodb import mongodb_session
 
 
 def match_number_and_verse_pair(passage):
     '''
     Match the entire pattern of bracket number follow by text
     '''
+
     verses = re.findall(r'\[(\d+)\](.*?)(?=\[|$)', passage, re.DOTALL)
     # Filter out empty strings and whitespace
     verses = [(verse[0], verse[1].strip())
@@ -144,9 +143,15 @@ class KjvPassageApi(BiblePassageApi):
         return match_number_and_verse_pair(content)
 
 
+class CuvsPassageApi(BiblePassageApi):
+
     class BookCode(int, Enum):
-        GEN = BibleBook.genesis
-        EXO = BibleBook.exodus
+        Gen = BibleBook.genesis
+        Exod = BibleBook.exodus
+        Lev = BibleBook.leviticus
+        Num = BibleBook.numbers
+        Deut = BibleBook.deuteronomy
+        Josh = BibleBook.joshua
         RUT = BibleBook.ruth
         PRO = BibleBook.proverbs
         ROM = BibleBook.romans
@@ -156,83 +161,52 @@ class KjvPassageApi(BiblePassageApi):
         JON = BibleBook.jonah
         ESG = BibleBook.esther
 
-    def get_param(self, passage: Passage):
-        book = self.BookCode(passage.book).name
-        return f'{book}.{passage.start_verse.chapter}.{passage.start_verse.verse}-{book}.{passage.end_verse.chapter}.{passage.end_verse.verse}'
+    collection = mongodb_session.get_collection("rcuvss", "verses")
 
-    def get_api(self, passage: Passage, *args, **kwargs) -> Url:
-        bible = self.bible
-        passage_param = self.get_param(passage)
-        return Url(f'https://api.scripture.api.bible/v1/bibles/{bible}/passages/{passage_param}')
+    def stringify_verse(self, verse: Verse):
+        return str(verse.chapter + verse.verse / 1000)
 
     def retrieve_passage(self, passage: Passage, *args, **kwargs):
-        url = self.get_api(passage=passage)
+        start_verse = self.stringify_verse(passage.start_verse)
+        end_verse = self.stringify_verse(passage.end_verse)
+        book_code = self.BookCode(passage.book).name
+
         try:
-            r = requests.get(url.unicode_string(), headers={
-                'api-key': self.api_key, 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
-            r.raise_for_status()
-            content = r.json().get('data').get('content')
-            return match_number_and_verse_pair(content)
-        except requests.exceptions.HTTPError as err:
-            print('HTTP Error:', err)
-        except requests.exceptions.ConnectionError as err:
-            print('Connection Error:', err)
-        except requests.exceptions.Timeout as err:
-            print('Timeout Error:', err)
+            # get the IDs of the starting and ending verse by filtering book and verse
+            # regex is used on the book field because the values stored contain whitespaces
+            start_verse_doc = self.collection.find_one(
+                {
+                    'book': {'$regex':  book_code},
+                    'verse': start_verse
+                }
+            )
+            end_verse_doc = self.collection.find_one(
+                {
+                    'book': {'$regex':  book_code},
+                    'verse': end_verse
+                }
+            )
 
-        return []
+            if start_verse_doc is None or end_verse_doc is None:
+                raise Exception(
+                    "start or end verse not found, passage incorrect")
 
-
-class CuvsPassageApi(BiblePassageApi):
-
-    def retrieve_passage(self, passage: Passage, *args, **kwargs):
-        start_verse = passage.start_verse.chapter + passage.start_verse.verse / 1000
-        end_verse = passage.end_verse.chapter + passage.end_verse.verse / 1000
-        try:
-            # Connect to DB and create a cursor
-            sqliteConnection = sqlite3.connect('rcuvss.sqlite3')
-            cursor = sqliteConnection.cursor()
-            print('DB Init')
-
-            # Write a query and execute it with cursor
-            query = \
-                f'''
-                    WITH book AS
-                    (SELECT v.id, v.verse, v.unformatted FROM verses v
-                    JOIN books b ON v.book = b.osis
-                    WHERE b.number = {passage.book.value})
-
-                    SELECT v.verse, v.unformatted FROM verses v
-                    WHERE v.id BETWEEN
-                    (
-                        SELECT id FROM book WHERE verse = {start_verse}
-
-                    ) AND
-                    (
-                        SELECT id FROM book WHERE verse = {end_verse}
-                    );
-                '''
-            cursor.execute(query)
-
-            # Fetch and output result
-            result = cursor.fetchall()
-
-            # Close the cursor
-            cursor.close()
-
-            return list(map(lambda x: (get_verse(x[0]), x[1]), result))
-
-        # Handle errors
-        except sqlite3.Error as error:
-            print('Error occurred - ', error)
-
-        # Close DB Connection irrespective of success
-        # or failure
-        finally:
-
-            if sqliteConnection:
-                sqliteConnection.close()
-                print('SQLite Connection closed')
+            mydoc = self.collection.find(
+                {
+                    'book': {'$regex': book_code},
+                    'id': {
+                        '$gte': start_verse_doc["id"],
+                        '$lte': end_verse_doc["id"]
+                    },
+                },
+                {
+                    'text': 1,
+                    'verse': 1,
+                }
+            )
+            return list(map(lambda x: (get_verse(x['verse']), x['text']), mydoc))
+        except Exception as e:
+            print(e)
 
         return []
 
