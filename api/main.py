@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse
 from pptx import Presentation
 from io import BytesIO
 
-from bible_passage_api import CuvsPassageApi
+from bible_passage_api import CuvsPassageApi, KjvPassageApi
 from data.bible import BibleBook
 from base import BlankPresentation, PresentationBuilder, PresentationTemplate
 from responsive_context import ResponsiveContext
@@ -36,10 +35,39 @@ async def build_slide_responsive_reading(passages: list[Passage]):
     return Response(output.getvalue(), media_type='application/pptx')
 
 
-@app.post("/bvpg/slides/passage", response_model=list[Passage])
-async def passage(passages: list[Passage]) -> list[Passage]:
-
+@app.post("/bvpg/slides/passages", response_model=list[Passage])
+async def passages(passages: list[Passage]) -> list[Passage]:
     return passages
+
+
+@app.get("/bvpg/api/passage/rcuvss/books/{book}/chapters/{chapter}/verses/{start_verse}/{end_verse}")
+async def rcuvss_passage(book: BibleBook, chapter: int, start_verse: int, end_verse: int):
+    passage = Passage(
+        book=book,
+        start_verse=Verse(chapter=chapter, verse=start_verse),
+        end_verse=Verse(chapter=chapter, verse=end_verse)
+    )
+
+    text = CuvsPassageApi().retrieve_passage(
+        passage=passage
+    )
+
+    return text
+
+
+@app.get("/bvpg/api/passage/kjv/books/{book}/chapters/{chapter}/verses/{start_verse}/{end_verse}")
+async def kjv_passage(book: BibleBook, chapter: int, start_verse: int, end_verse: int):
+    passage = Passage(
+        book=book,
+        start_verse=Verse(chapter=chapter, verse=start_verse),
+        end_verse=Verse(chapter=chapter, verse=end_verse)
+    )
+
+    text = KjvPassageApi().retrieve_passage(
+        passage=passage
+    )
+
+    return text
 
 
 @app.get("/")
