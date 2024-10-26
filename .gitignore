@@ -1,3 +1,6 @@
 env
 api/exports/*.pptx
 api/exports/*.ppt
+.env
+run_sql.py
+dump.sql
