@@ -156,7 +156,6 @@ class CuvsPassageApi(BiblePassageApi):
 
 class PassageList:
 
-    passages = []
     english_passage_api = KjvPassageApi()
     chinese_passage_api = CuvsPassageApi()
 
