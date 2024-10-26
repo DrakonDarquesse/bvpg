@@ -1,5 +1,5 @@
 from enum import Enum
-import math
+from decouple import config
 import re
 import sqlite3
 from typing import Callable
@@ -42,13 +42,12 @@ def split_verse_and_match_number(passage):
     return list(zip(verse_numbers, verses))
 
 
-def get_verse(chapter_verse: float):
-    return round(chapter_verse * 1000 % 1000)
+def get_verse(chapter_verse: str):
+    return int(chapter_verse.split(".")[1])
 
 
 class BiblePassageApi:
 
-    api: Url | None = None
     error_handler: Callable | None = None
 
     def get_api(self, passage: Passage) -> Url:
@@ -60,6 +59,7 @@ class BiblePassageApi:
 
 class KjvPassageApi(BiblePassageApi):
     bible = 'de4e12af7f28f599-01'
+    api_key: str = config("API_KEY")  # type: ignore
 
     class BookCode(int, Enum):
         GEN = BibleBook.genesis
@@ -70,6 +70,8 @@ class KjvPassageApi(BiblePassageApi):
         JHN = BibleBook.john
         MRK = BibleBook.mark
         EPH = BibleBook.ephesians
+        JON = BibleBook.jonah
+        ESG = BibleBook.esther
 
     def get_param(self, passage: Passage):
         book = self.BookCode(passage.book).name
@@ -84,7 +86,7 @@ class KjvPassageApi(BiblePassageApi):
         url = self.get_api(passage=passage)
         try:
             r = requests.get(url.unicode_string(), headers={
-                'api-key': 'f89e0fc2938f4d054717716279057d45', 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
+                'api-key': self.api_key, 'accept': 'application/json'}, params={'content-type': 'text', 'include-titles': 'false', 'include-verse-numbers': 'true'})
             r.raise_for_status()
             content = r.json().get('data').get('content')
             return match_number_and_verse_pair(content)
