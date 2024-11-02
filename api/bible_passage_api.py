@@ -223,7 +223,7 @@ class CuvsPassageApi(BiblePassageApi):
     def retrieve_passage(self, passage: Passage, *args, **kwargs):
         start_verse = self.stringify_verse(passage.start_verse)
         end_verse = self.stringify_verse(passage.end_verse)
-        book_code = self.BookCode(passage.book).name
+        book_code = self.book_code[passage.book]
 
         try:
             # get the IDs of the starting and ending verse by filtering book and verse
