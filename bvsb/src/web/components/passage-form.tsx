@@ -7,16 +7,29 @@ import BasicSelect from "./basic-select";
 import bibleDirectory from "../../../public/data/bible-directory";
 import CustomButton from "./custom-button";
 
-// ? add id because the parent component need to identify
-type Passage = {
+type PassageFormData = {
   book: number | undefined;
   chapter: number | undefined;
   startVerse: number | undefined;
   endVerse: number | undefined;
 };
 
+type Passage = {
+  book: number;
+  chapter: number;
+  startVerse: number;
+  endVerse: number;
+};
+
+function isPassage(passage: PassageFormData | Passage): passage is Passage {
+  // if any of the properties is 0, it should be false also, because the value shouldn't be 0
+  return Boolean(
+    passage.book && passage.chapter && passage.endVerse && passage.startVerse
+  );
+}
+
 const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
-  const [passage, setPassage] = React.useState<Passage>({
+  const [passage, setPassage] = React.useState<PassageFormData>({
     book: undefined,
     chapter: undefined,
     startVerse: undefined,
@@ -24,12 +37,7 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
   });
 
   const handleSubmit = (next: (passage: Passage) => void) => () => {
-    if (
-      passage.book &&
-      passage.chapter &&
-      passage.endVerse &&
-      passage.startVerse
-    ) {
+    if (isPassage(passage)) {
       next(passage);
       handleClearForm();
     }
@@ -171,4 +179,4 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
 
 export default PassageForm;
 
-export { type Passage };
+export { type PassageFormData, type Passage };
