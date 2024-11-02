@@ -4,7 +4,10 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { SelectChangeEvent } from "@mui/material/Select";
 import BasicSelect from "./basic-select";
-import bibleDirectory from "../../../public/data/bible-directory";
+import bibleDirectory, {
+  chapters,
+  verses,
+} from "../../../public/data/bible-directory";
 import CustomButton from "./custom-button";
 
 type PassageFormData = {
@@ -99,40 +102,24 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
   });
 
   const getChapterOptions = React.useMemo(() => {
-    return (bookIndex: number | undefined) =>
-      bibleDirectory
-        .find((val) => val.bookIndex == bookIndex)
-        ?.chapters.map((chapter) => ({
-          value: chapter.chapterNum,
-          label: chapter.chapterNum,
-        })) ?? [];
+    return (bookIndex: number) =>
+      chapters(bookIndex).map((chapter) => ({
+        value: chapter,
+        label: chapter,
+      })) ?? [];
   }, []);
 
   const getStartVerseOptions = React.useMemo(() => {
-    return (passage: Passage) =>
-      Array.from(
-        Array(
-          bibleDirectory
-            .find((val) => val.bookIndex == passage.book)
-            ?.chapters.find((val) => val.chapterNum == passage.chapter)
-            ?.numOfVerse
-        ).keys()
-      ).map((num) => num + 1);
+    return (bookIndex: number, chapterIndex: number) =>
+      verses(bookIndex, chapterIndex);
   }, []);
 
   const getEndVerseOptions = React.useMemo(() => {
-    return (passage: Passage) =>
-      // ? split this part as its individual function because got duplicate?
-      Array.from(
-        Array(
-          bibleDirectory
-            .find((val) => val.bookIndex == passage.book)
-            ?.chapters.find((val) => val.chapterNum == passage.chapter)
-            ?.numOfVerse
-        ).keys()
-      )
-        .toSpliced(0, passage.startVerse ? passage.startVerse - 1 : 0)
-        .map((num) => num + 1);
+    return (bookIndex: number, chapterIndex: number) =>
+      verses(bookIndex, chapterIndex).toSpliced(
+        0,
+        passage.startVerse ? passage.startVerse - 1 : 0 //TODO : test this part (need minus 1 or not)
+      );
   }, []);
 
   return (
@@ -154,20 +141,28 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
         value={passage.chapter}
         label="Chapter"
         name="chapter"
-        options={getChapterOptions(passage.book)}
+        options={passage.book ? getChapterOptions(passage.book) : []}
         onChange={handleChapterChange}
       ></BasicSelect>
       <BasicSelect
         value={passage.startVerse}
         label="Starting Verse"
         name="startVerse"
-        options={getStartVerseOptions(passage)}
+        options={
+          passage.chapter && passage.book
+            ? getStartVerseOptions(passage.book, passage.chapter)
+            : []
+        }
         onChange={handleStartVerseChange}
       ></BasicSelect>
       <BasicSelect
         value={passage.endVerse}
         label="Ending Verse"
-        options={getEndVerseOptions(passage)}
+        options={
+          passage.chapter && passage.book
+            ? getEndVerseOptions(passage.book, passage.chapter)
+            : []
+        }
         name="endVerse"
         onChange={handleEndVerseChange}
       ></BasicSelect>

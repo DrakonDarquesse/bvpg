@@ -424,7 +424,7 @@ const book = (bookIndex: number) =>
 const chapters = (bookIndex: number) =>
   Array.from(Array(book(bookIndex)?.chapters.length), (_, i) => i + 1);
 
-const verse = (bookIndex: number, chapterIndex: number) =>
+const verses = (bookIndex: number, chapterIndex: number) =>
   Array.from(
     Array(book(bookIndex)?.chapters[chapterIndex - 1]),
     (_, i) => i + 1
@@ -432,6 +432,6 @@ const verse = (bookIndex: number, chapterIndex: number) =>
 
 export default bibleDirectory;
 
-export { book, chapters, verse };
+export { book, chapters, verses };
 
 export { type BibleDirectory };
