@@ -111,6 +111,7 @@ class KjvPassageApi(BiblePassageApi):
         BibleBook.corinthians_1: '1CO',
         BibleBook.corinthians_2: '2CO',
         BibleBook.galatians: 'GAL',
+        BibleBook.ephesians: 'EPH',
         BibleBook.philippians: 'PHP',
         BibleBook.colossians: 'COL',
         BibleBook.thessalonians_1: '1TH',
@@ -145,21 +146,74 @@ class KjvPassageApi(BiblePassageApi):
 
 class CuvsPassageApi(BiblePassageApi):
 
-    class BookCode(int, Enum):
-        Gen = BibleBook.genesis
-        Exod = BibleBook.exodus
-        Lev = BibleBook.leviticus
-        Num = BibleBook.numbers
-        Deut = BibleBook.deuteronomy
-        Josh = BibleBook.joshua
-        RUT = BibleBook.ruth
-        PRO = BibleBook.proverbs
-        ROM = BibleBook.romans
-        JHN = BibleBook.john
-        MRK = BibleBook.mark
-        EPH = BibleBook.ephesians
-        JON = BibleBook.jonah
-        ESG = BibleBook.esther
+    book_code = {
+        BibleBook.genesis: 'Gen',
+        BibleBook.exodus: 'Exod',
+        BibleBook.leviticus: 'Lev',
+        BibleBook.numbers: 'Num',
+        BibleBook.deuteronomy: 'Deut',
+        BibleBook.joshua: 'Josh',
+        BibleBook.judges: 'Judg',
+        BibleBook.ruth: 'Ruth',
+        BibleBook.samuel_1: '1Sam',
+        BibleBook.samuel_2: '2Sam',
+        BibleBook.kings_1: '1Kgs',
+        BibleBook.kings_2: '2Kgs',
+        BibleBook.chronicles_1: '1Chr',
+        BibleBook.chronicles_2: '2Chr',
+        BibleBook.ezra: 'Ezra',
+        BibleBook.nehemiah: 'Neh',
+        BibleBook.esther: 'Esth',
+        BibleBook.job: 'Job',
+        BibleBook.psalms: 'Ps',
+        BibleBook.proverbs: 'Prov',
+        BibleBook.ecclesiastes: 'Eccl',
+        BibleBook.song_of_songs: 'Song',
+        BibleBook.isaiah: 'Isa',
+        BibleBook.jeremiah: 'Jer',
+        BibleBook.lamentations: 'Lam',
+        BibleBook.ezekiel: 'Ezek',
+        BibleBook.daniel: 'Dan',
+        BibleBook.hosea: 'Hos',
+        BibleBook.joel: 'Joel',
+        BibleBook.amos: 'Amos',
+        BibleBook.obadiah: 'Obad',
+        BibleBook.jonah: 'Jonah',
+        BibleBook.micah: 'Mic',
+        BibleBook.nahum: 'Nah',
+        BibleBook.habakkuk: 'Hab',
+        BibleBook.zephaniah: 'Zeph',
+        BibleBook.haggai: 'Hag',
+        BibleBook.zechariah: 'Zech',
+        BibleBook.malachi: 'Mal',
+        BibleBook.matthew: 'Matt',
+        BibleBook.mark: 'Mark',
+        BibleBook.luke: 'Luke',
+        BibleBook.john: 'John',
+        BibleBook.acts: 'Acts',
+        BibleBook.romans: 'Rom',
+        BibleBook.corinthians_1: '1Cor',
+        BibleBook.corinthians_2: '2Cor',
+        BibleBook.galatians: 'Gal',
+        BibleBook.ephesians: 'Eph',
+        BibleBook.philippians: 'Phil',
+        BibleBook.colossians: 'Col',
+        BibleBook.thessalonians_1: '1Thess',
+        BibleBook.thessalonians_2: '2Thess',
+        BibleBook.timothy_1: '1Tim',
+        BibleBook.timothy_2: '2Tim',
+        BibleBook.titus: 'Titus',
+        BibleBook.philemon: 'Phlm',
+        BibleBook.hebrews: 'Heb',
+        BibleBook.james: 'Jas',
+        BibleBook.peter_1: '1Pet',
+        BibleBook.peter_2: '2Pet',
+        BibleBook.john_1: '1John',
+        BibleBook.john_2: '2John',
+        BibleBook.john_3: '3John',
+        BibleBook.jude: 'Jude',
+        BibleBook.revelation: 'Rev',
+    }
 
     collection = mongodb_session.get_collection("rcuvss", "verses")
 
