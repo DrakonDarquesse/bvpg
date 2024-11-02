@@ -1,9 +1,5 @@
-from enum import Enum
 from decouple import config
 import re
-from typing import Callable
-from pydantic_core import Url
-import requests
 
 from bibleapi.scripture.bibleid import BibleID
 from utils import get_passage_content
@@ -234,23 +230,17 @@ class CuvsPassageApi(BiblePassageApi):
                     'verse': start_verse
                 }
             )
-            end_verse_doc = self.collection.find_one(
-                {
-                    'book': {'$regex':  book_code},
-                    'verse': end_verse
-                }
-            )
 
-            if start_verse_doc is None or end_verse_doc is None:
+            if start_verse_doc is None:
                 raise Exception(
-                    "start or end verse not found, passage incorrect")
+                    "start verse not found, might be combined with its preceding verse")
 
             mydoc = self.collection.find(
                 {
                     'book': {'$regex': book_code},
-                    'id': {
-                        '$gte': start_verse_doc["id"],
-                        '$lte': end_verse_doc["id"]
+                    'verse': {
+                        '$gte': start_verse,
+                        '$lte': end_verse
                     },
                 },
                 {
@@ -261,8 +251,7 @@ class CuvsPassageApi(BiblePassageApi):
             return list(map(lambda x: (get_verse(x['verse']), x['text']), mydoc))
         except Exception as e:
             print(e)
-
-        return []
+            raise e
 
 
 class PassageList:
@@ -278,8 +267,13 @@ class PassageList:
         chi_verses = self.chinese_passage_api.retrieve_passage(
             passage)
 
+        print(eng_verses)
+        print(chi_verses)
+
         while len(eng_verses) > 0:
-            if int(eng_verses[0][0]) == chi_verses[0][0]:
+            if len(chi_verses) <= 0:
+                self.passages[-1]['eng'].append(eng_verses.pop(0)[1])
+            elif int(eng_verses[0][0]) == chi_verses[0][0]:
                 eng_verse = eng_verses.pop(0)
                 chi_verse = chi_verses.pop(0)
                 self.passages.append({
