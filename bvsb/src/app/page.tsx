@@ -15,6 +15,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import PassageForm, { Passage } from "@/web/components/passage-form";
 import CustomButton from "@/web/components/custom-button";
 import CustomBox from "@/web/components/custom-box";
+import { book } from "../../public/data/bible-directory";
 
 const BibleReading = () => {
   const theme = useTheme();
@@ -190,8 +191,8 @@ const BibleReading = () => {
                   }}
                 >
                   <ListItemText>
-                    {passage.book} {passage.chapter}: {passage.startVerse}-
-                    {passage.endVerse}
+                    {book(passage.book)?.bookName} {passage.chapter}:{" "}
+                    {passage.startVerse}-{passage.endVerse}
                   </ListItemText>
                   <Box
                     onClick={deletePassage(id)}
