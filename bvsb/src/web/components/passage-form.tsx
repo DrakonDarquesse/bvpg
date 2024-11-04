@@ -3,6 +3,7 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import { SelectChangeEvent } from "@mui/material/Select";
+
 import BasicSelect from "./basic-select";
 import bibleDirectory, {
   chapters,
@@ -115,11 +116,8 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
   }, []);
 
   const getEndVerseOptions = React.useMemo(() => {
-    return (bookIndex: number, chapterIndex: number) =>
-      verses(bookIndex, chapterIndex).toSpliced(
-        0,
-        passage.startVerse ? passage.startVerse - 1 : 0 //TODO : test this part (need minus 1 or not)
-      );
+    return (bookIndex: number, chapterIndex: number, startVerse: number) =>
+      verses(bookIndex, chapterIndex).toSpliced(0, startVerse - 1);
   }, []);
 
   return (
@@ -159,8 +157,12 @@ const PassageForm = (props: { onSave: (passage: Passage) => void }) => {
         value={passage.endVerse}
         label="Ending Verse"
         options={
-          passage.chapter && passage.book
-            ? getEndVerseOptions(passage.book, passage.chapter)
+          passage.chapter && passage.book && passage.startVerse
+            ? getEndVerseOptions(
+                passage.book,
+                passage.chapter,
+                passage.startVerse
+              )
             : []
         }
         name="endVerse"
