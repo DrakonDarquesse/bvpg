@@ -20,6 +20,7 @@ import PassageForm, { Passage } from "@/web/components/passage-form";
 import CustomButton from "@/web/components/custom-button";
 import CustomBox from "@/web/components/custom-box";
 import { book } from "../../public/data/bible-directory";
+import useSnackbar from "@/web/hooks/use-snackbar";
 
 const BibleReading = () => {
   const theme = useTheme();
@@ -45,13 +46,7 @@ const BibleReading = () => {
     slideTypeData.bibleReading.value
   );
 
-  const [snackbar, setSnackbar] = React.useState<{
-    severity: "success" | "info" | "error";
-    message: string;
-  }>({
-    severity: "info",
-    message: "",
-  });
+  const snackbar = useSnackbar();
 
   const [SnackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
 
@@ -102,15 +97,9 @@ const BibleReading = () => {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      setSnackbar({
-        severity: "success",
-        message: "Slides created!",
-      });
+      snackbar.success("Slides created!");
     } else {
-      setSnackbar({
-        severity: "error",
-        message: "An error occurred while fetching data",
-      });
+      snackbar.error("An error occurred while fetching data");
     }
     setSnackbarOpen(true);
   };
@@ -274,18 +263,15 @@ const BibleReading = () => {
       <Footer></Footer>
       <Snackbar
         open={SnackbarOpen}
-        onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        {snackbar && (
-          <Alert
-            severity={snackbar.severity}
-            sx={{ width: "100%" }}
-            onClose={handleSnackbarClose}
-          >
-            {snackbar.message}
-          </Alert>
-        )}
+        <Alert
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+          onClose={handleSnackbarClose}
+        >
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </>
   );
