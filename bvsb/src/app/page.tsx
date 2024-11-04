@@ -48,7 +48,7 @@ const BibleReading = () => {
 
   const snackbar = useSnackbar();
 
-  const [SnackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
+  const [snackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -262,7 +262,7 @@ const BibleReading = () => {
       </Box>
       <Footer></Footer>
       <Snackbar
-        open={SnackbarOpen}
+        open={snackbarOpen}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
