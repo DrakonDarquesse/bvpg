@@ -21,13 +21,10 @@ import CustomButton from "@/web/components/custom-button";
 import CustomBox from "@/web/components/custom-box";
 import { book } from "../../public/data/bible-directory";
 import useSnackbar from "@/web/hooks/use-snackbar";
+import usePassages from "@/web/hooks/use-passages";
 
 const BibleReading = () => {
   const theme = useTheme();
-
-  const [passages, setPassages] = React.useState<
-    { passage: Passage; id: number }[]
-  >([]);
 
   const slideTypeData = {
     bibleReading: {
@@ -50,6 +47,8 @@ const BibleReading = () => {
 
   const [snackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
 
+  const [passages, addPassage, removePassage] = usePassages();
+
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const handleSlideTypeChange = (event: SelectChangeEvent) => {
@@ -58,9 +57,7 @@ const BibleReading = () => {
   };
 
   const passageFormHandler = (passage: Passage) => {
-    setPassages((passages) => {
-      return [...passages, { passage, id: passages.length }];
-    });
+    addPassage({ passage, id: passages.length });
   };
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -114,9 +111,7 @@ const BibleReading = () => {
 
   const deletePassage =
     (passageId: number) => (_: React.MouseEvent<HTMLElement>) => {
-      setPassages((passages) => {
-        return passages.filter((p) => p.id != passageId);
-      });
+      removePassage(passageId);
     };
 
   return (
