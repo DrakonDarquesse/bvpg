@@ -12,6 +12,10 @@ import useTheme from "@mui/material/styles/useTheme";
 import Header from "@/web/components/header";
 import Footer from "@/web/components/footer";
 import ClearIcon from "@mui/icons-material/Clear";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+
 import PassageForm, { Passage } from "@/web/components/passage-form";
 import CustomButton from "@/web/components/custom-button";
 import CustomBox from "@/web/components/custom-box";
@@ -34,11 +38,24 @@ const BibleReading = () => {
       label: "Responsive Reading",
       value: "responsive-reading",
     },
-  };
+  } as const;
 
+  // manage slide format state
   const [slideType, setSlideType] = React.useState<string>(
     slideTypeData.bibleReading.value
   );
+
+  const [snackbar, setSnackbar] = React.useState<{
+    severity: "success" | "info" | "error";
+    message: string;
+  }>({
+    severity: "info",
+    message: "",
+  });
+
+  const [SnackbarOpen, setSnackbarOpen] = React.useState<boolean>(false);
+
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const handleSlideTypeChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
@@ -52,6 +69,7 @@ const BibleReading = () => {
   };
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    setLoading(true);
     const res = await fetch(`/api/${slideType}`, {
       method: "POST",
       headers: {
@@ -72,6 +90,8 @@ const BibleReading = () => {
       ]),
     });
 
+    setLoading(false);
+
     if (res.ok) {
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -82,11 +102,29 @@ const BibleReading = () => {
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
+      setSnackbar({
+        severity: "success",
+        message: "Slides created!",
+      });
+    } else {
+      setSnackbar({
+        severity: "error",
+        message: "An error occurred while fetching data",
+      });
     }
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (
+    _: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
   };
 
   const deletePassage =
-    (passageId: number) => (event: React.MouseEvent<HTMLElement>) => {
+    (passageId: number) => (_: React.MouseEvent<HTMLElement>) => {
       setPassages((passages) => {
         return passages.filter((p) => p.id != passageId);
       });
@@ -213,12 +251,42 @@ const BibleReading = () => {
               );
             })}
           </List>
-          <CustomButton onClick={handleSubmit} disabled={passages.length <= 0}>
+          <CustomButton
+            onClick={handleSubmit}
+            disabled={passages.length <= 0 || loading}
+          >
+            {loading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  display: "flex",
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
+                <CircularProgress size={20} />
+              </Box>
+            )}
             Build
           </CustomButton>
         </CustomBox>
       </Box>
       <Footer></Footer>
+      <Snackbar
+        open={SnackbarOpen}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {snackbar && (
+          <Alert
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+            onClose={handleSnackbarClose}
+          >
+            {snackbar.message}
+          </Alert>
+        )}
+      </Snackbar>
     </>
   );
 };
