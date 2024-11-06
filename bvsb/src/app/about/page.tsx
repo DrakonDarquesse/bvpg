@@ -35,7 +35,7 @@ const About = () => {
           <Typography>
             {`
             Slide Builder creates PowerPoint Presentation files in which the slides are bible passages. The slides can be used during a church service (particularly a Methodist).
-            Slide Builder can create slides for bible reading and responsive reading, which are parts of the flow of a Methodist worship service.s 
+            Slide Builder can create slides for bible reading and responsive reading, which are parts of the flow of a Methodist worship services 
               `}
           </Typography>
         </CustomBox>

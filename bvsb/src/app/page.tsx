@@ -96,7 +96,7 @@ const BibleReading = () => {
       window.URL.revokeObjectURL(url);
       snackbar.success("Slides created!");
     } else {
-      snackbar.error("An error occurred while fetching data");
+      snackbar.error("An error occurred while creating slides");
     }
     setSnackbarOpen(true);
   };
