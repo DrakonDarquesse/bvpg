@@ -1,6 +1,7 @@
+"use client";
+
 import React, { type PropsWithChildren } from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import useTheme from "@mui/material/styles/useTheme";
 
@@ -32,7 +33,7 @@ const Header = (props: PropsWithChildren) => {
         },
       }}
     >
-      <Box sx={{}}>
+      <Box>
         <Link className="headerItem" href="/">
           Slide Builder
         </Link>
