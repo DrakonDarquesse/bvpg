@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 const CustomBox = (props: PropsWithChildren<BoxProps>) => {
   return (
     <Box
+      {...props}
       sx={{
         p: {
           xl: 4,
@@ -13,8 +14,8 @@ const CustomBox = (props: PropsWithChildren<BoxProps>) => {
         flexDirection: "column",
         bgcolor: "primary.light",
         borderRadius: 2,
+        ...props.sx,
       }}
-      {...props}
     >
       {props.children}
     </Box>
