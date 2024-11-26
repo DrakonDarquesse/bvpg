@@ -27,11 +27,14 @@ const About = () => {
               xl: "400px",
             },
             width: "100%",
+            gap: 2,
           },
         }}
       >
         <CustomBox>
-          <Typography variant="subtitle1">What's this for</Typography>
+          <Typography variant="subtitle1" sx={{}}>
+            What's this for
+          </Typography>
           <Typography>
             {`
             Slide Builder creates PowerPoint Presentation files in which the slides are bible passages. The slides can be used during a church service (particularly a Methodist).
