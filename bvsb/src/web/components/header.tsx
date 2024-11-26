@@ -40,7 +40,7 @@ const Header = (props: PropsWithChildren) => {
         {props.children}
       </Box>
       <Box>
-        <Link href="/about" className="headerItem">
+        <Link className="headerItem" href="/about">
           About
         </Link>
       </Box>
