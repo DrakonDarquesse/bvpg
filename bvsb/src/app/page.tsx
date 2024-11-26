@@ -7,10 +7,8 @@ import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import useTheme from "@mui/material/styles/useTheme";
-import Header from "@/web/components/header";
-import Footer from "@/web/components/footer";
+
 import ClearIcon from "@mui/icons-material/Clear";
 import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -19,29 +17,18 @@ import CircularProgress from "@mui/material/CircularProgress";
 import PassageForm, { Passage } from "@/web/components/passage-form";
 import CustomButton from "@/web/components/custom-button";
 import CustomBox from "@/web/components/custom-box";
-import { book } from "../../public/data/bible-directory";
+import Header from "@/web/components/header";
+import Footer from "@/web/components/footer";
 import useSnackbar from "@/web/hooks/use-snackbar";
 import usePassages from "@/web/hooks/use-passages";
+import SlideSelect, { type SlideType } from "@/web/components/slide-select";
+import { book } from "../../public/data/bible-directory";
 
 const BibleReading = () => {
   const theme = useTheme();
 
-  const slideTypeData = {
-    bibleReading: {
-      label: "Bible Reading",
-      value: "bible-reading",
-    },
-
-    responsiveReading: {
-      label: "Responsive Reading",
-      value: "responsive-reading",
-    },
-  } as const;
-
   // manage slide format state
-  const [slideType, setSlideType] = React.useState<string>(
-    slideTypeData.bibleReading.value
-  );
+  const [slideType, setSlideType] = React.useState<SlideType>("bible-reading");
 
   const snackbar = useSnackbar();
 
@@ -51,8 +38,8 @@ const BibleReading = () => {
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
-  const handleSlideTypeChange = (event: SelectChangeEvent) => {
-    const value = event.target.value;
+  const handleSlideTypeChange = (event: SelectChangeEvent<SlideType>) => {
+    const value = event.target.value as SlideType;
     setSlideType(() => value);
   };
 
@@ -117,87 +104,47 @@ const BibleReading = () => {
   return (
     <>
       <Header>
-        <Select
-          onChange={handleSlideTypeChange}
+        <SlideSelect
           value={slideType}
-          className="headerItem"
+          onChange={handleSlideTypeChange}
           sx={{
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-            "& .MuiSelect-select": {
-              p: 0,
+            display: {
+              md: "block",
+              xs: "none",
             },
           }}
-          MenuProps={{
-            PaperProps: {
-              sx: {
-                borderRadius: 3,
-                "& .MuiMenuItem-root": {
-                  padding: 2,
-                  fontSize: theme.typography.h6,
-                },
-              },
-              elevation: 1,
-            },
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "left",
-            },
-            transformOrigin: {
-              vertical: "top",
-              horizontal: "left",
-            },
-          }}
-        >
-          {Object.values(slideTypeData).map((slideType, index) => {
-            return (
-              <MenuItem key={index} value={slideType.value}>
-                {slideType.label}
-              </MenuItem>
-            );
-          })}
-        </Select>
+        ></SlideSelect>
       </Header>
+      <SlideSelect
+        value={slideType}
+        onChange={handleSlideTypeChange}
+        sx={{
+          display: {
+            md: "none",
+          },
+        }}
+      ></SlideSelect>
       <Box
         sx={{
           width: "100%",
           display: "flex",
-          flexWrap: "wrap",
+          flexWrap: {
+            md: "nowrap",
+            xs: "wrap",
+          },
           gap: 6,
           justifyContent: "center",
           "& > div": {
             minWidth: "280px",
             maxWidth: "400px",
-            p: {
-              xl: 4,
-              xs: 3,
-            },
-            bgcolor: "primary.light",
-            borderRadius: 2,
+            width: "100%",
           },
         }}
       >
-        <CustomBox
-          sx={{
-            width: "100%",
-          }}
-        >
+        <CustomBox>
           <PassageForm onSave={passageFormHandler}></PassageForm>
         </CustomBox>
-        <CustomBox
-          sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <CustomBox>
           <Typography>Build List:</Typography>
           <List
             sx={{

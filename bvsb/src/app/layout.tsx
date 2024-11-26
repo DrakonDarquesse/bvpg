@@ -17,7 +17,10 @@ const RootLayout = (props: PropsWithChildren) => {
               flexDirection: "column",
               gap: 2,
               minHeight: "100%",
-              px: 18,
+              px: {
+                md: 18,
+                xs: 4,
+              },
               py: {
                 xl: 4,
                 xs: 1.5,
