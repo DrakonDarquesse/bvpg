@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Type
 from pptx import Presentation as ppt
 from pptx.presentation import Presentation, Slides
 from pptx.enum.dml import MSO_FILL  # type: ignore
