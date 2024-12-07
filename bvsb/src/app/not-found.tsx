@@ -3,7 +3,6 @@ import Typography from "@mui/material/Typography/Typography";
 import Header from "@/web/components/header";
 import Footer from "@/web/components/footer";
 import Divider from "@mui/material/Divider/Divider";
-import React from "react";
 
 type Scripture = {
   book: string;

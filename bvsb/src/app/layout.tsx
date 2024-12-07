@@ -1,7 +1,7 @@
 import React, { type PropsWithChildren } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import { ClientThemeProvider } from "../web/theme/theme-provider";
+import Box from "@mui/material/Box/Box";
+import { ClientThemeProvider } from "@/web/theme/theme-provider";
 
 const RootLayout = (props: PropsWithChildren) => {
   return (
