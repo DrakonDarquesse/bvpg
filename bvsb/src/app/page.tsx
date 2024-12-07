@@ -25,7 +25,7 @@ import SlideSelect, { type SlideType } from "@/web/components/slide-select";
 import { book } from "../../public/data/bible-directory";
 
 const BibleReading = () => {
-  const theme = useTheme();
+  useTheme();
 
   // manage slide format state
   const [slideType, setSlideType] = React.useState<SlideType>("bible-reading");
@@ -43,8 +43,10 @@ const BibleReading = () => {
     setSlideType(() => value);
   };
 
+  const id = React.useRef<number>(0);
+
   const passageFormHandler = (passage: Passage) => {
-    addPassage({ passage, id: passages.length });
+    addPassage({ passage, id: id.current++ });
   };
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {

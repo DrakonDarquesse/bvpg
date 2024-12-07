@@ -1,3 +1,4 @@
+import React from "react";
 import Box from "@mui/material/Box/Box";
 import Typography from "@mui/material/Typography/Typography";
 import Header from "@/web/components/header";
