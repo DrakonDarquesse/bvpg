@@ -4,7 +4,7 @@ import React, { type PropsWithChildren } from "react";
 import responsiveFontSizes from "@mui/material/styles/responsiveFontSizes";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import systemTheme from ".";
+import systemTheme from "@/web/theme/index";
 
 const ClientThemeProvider = (props: PropsWithChildren) => {
   const system = systemTheme();

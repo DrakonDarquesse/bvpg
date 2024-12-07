@@ -12,7 +12,6 @@ def match_number_and_verse_pair(passage):
     '''
     Match the entire pattern of bracket number follow by text
     '''
-
     verses = re.findall(r'\[(\d+)\](.*?)(?=\[|$)', passage, re.DOTALL)
     # Filter out empty strings and whitespace
     verses = [(verse[0], verse[1].strip())
@@ -43,7 +42,8 @@ def split_verse_and_match_number(passage):
 
 
 def get_verse(chapter_verse: str):
-    return int(chapter_verse.split(".")[1])
+    # return int(chapter_verse.split(".")[1])
+    return int(round(float(chapter_verse) * 1000 % 1000))
 
 
 class BiblePassageApi:
@@ -247,6 +247,10 @@ class CuvsPassageApi(BiblePassageApi):
                     'text': 1,
                     'verse': 1,
                 }
+            ).sort(
+                {
+                    'verse': 1
+                }
             )
             return list(map(lambda x: (get_verse(x['verse']), x['text']), mydoc))
         except Exception as e:
@@ -266,9 +270,6 @@ class PassageList:
             passage)
         chi_verses = self.chinese_passage_api.retrieve_passage(
             passage)
-
-        print(eng_verses)
-        print(chi_verses)
 
         while len(eng_verses) > 0:
             if len(chi_verses) <= 0:
