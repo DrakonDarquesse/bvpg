@@ -2,14 +2,11 @@
 
 import React from "react";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { SelectChangeEvent } from "@mui/material/Select";
 import useTheme from "@mui/material/styles/useTheme";
 
-import ClearIcon from "@mui/icons-material/Clear";
 import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -22,7 +19,7 @@ import Footer from "@/web/components/footer";
 import useSnackbar from "@/web/hooks/use-snackbar";
 import usePassages from "@/web/hooks/use-passages";
 import SlideSelect, { type SlideType } from "@/web/components/slide-select";
-import { book } from "../../public/data/bible-directory";
+import PassageItem from "@/web/components/passage-item";
 
 const BibleReading = () => {
   useTheme();
@@ -155,32 +152,12 @@ const BibleReading = () => {
           >
             {passages.map(({ passage, id }, index) => {
               return (
-                <ListItem
+                <PassageItem
                   key={index}
-                  sx={{
-                    px: 0,
-                  }}
-                >
-                  <ListItemText>
-                    {book(passage.book)?.bookName} {passage.chapter}:{" "}
-                    {passage.startVerse}-{passage.endVerse}
-                  </ListItemText>
-                  <Box
-                    onClick={deletePassage(id)}
-                    sx={{
-                      p: 0.5,
-                      borderRadius: 1,
-                      display: "flex",
-                      justifyContent: "center",
-                      ":hover": {
-                        bgcolor: "white",
-                      },
-                      cursor: "pointer",
-                    }}
-                  >
-                    <ClearIcon color="primary"></ClearIcon>
-                  </Box>
-                </ListItem>
+                  passage={passage}
+                  passageId={id}
+                  deleteHandler={deletePassage(id)}
+                ></PassageItem>
               );
             })}
           </List>
