@@ -29,14 +29,12 @@ class PassageContext(Context):
                     'combined_verses': PassageList(passage=passage).passages,
                     'passage': passage
                 })
-        return [self.cover(), *self.verse()]
+        return [*self.cover(), *self.verse()]
 
     def cover(self):
         passages = self.passages
-        if len(passages) > 1:
-            pass
-        else:
-            passage = passages[0]
+        covers = []
+        for passage in passages:
             context = {
                 'title': 'one_passage_cover',
                 'data': {
@@ -53,7 +51,8 @@ class PassageContext(Context):
                 context['data'].update({
                     'verse': f'{passage.start_verse.chapter}: {passage.start_verse.verse}-{passage.end_verse.chapter}: {passage.end_verse.verse}'
                 })
-            return context
+            covers.append(context)
+        return covers
 
     def verse(self):
         slide_contexts = []

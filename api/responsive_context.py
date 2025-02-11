@@ -12,19 +12,23 @@ class ResponsiveContext(Context):
     def get_context(self):
         passage = self.passages[0]
         self.combined_verses = PassageList(passage=passage).passages
-        return [self.cover(), *self.responsive(), self.responsive_end()]
+        return [*self.cover(), *self.responsive(), self.responsive_end()]
 
     def cover(self):
-        passage = self.passages[0]
-        return {
-            'title': 'cover',
-            'data': {
-                'title': '启应经文 Responsive Reading',
-                'chi_book': BibleBookVerbose[passage.book.name].value,
-                'eng_book': passage.book.name,
-                'chapter_verse': f'{passage.start_verse.chapter}: {passage.start_verse.verse}-{passage.end_verse.verse}'
+        passages = self.passages
+        covers = []
+        for passage in passages:
+            context = {
+                'title': 'cover',
+                'data': {
+                    'title': '启应经文 Responsive Reading',
+                    'chi_book': BibleBookVerbose[passage.book.name].value,
+                    'eng_book': passage.book.name,
+                    'chapter_verse': f'{passage.start_verse.chapter}: {passage.start_verse.verse}-{passage.end_verse.verse}'
+                }
             }
-        }
+            covers.append(context)
+        return covers
 
     def responsive(self):
         slide_contexts = []
