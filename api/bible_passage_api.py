@@ -258,9 +258,38 @@ class CuvsPassageApi(BiblePassageApi):
             raise e
 
 
+class EsvPassageApi(BiblePassageApi):
+
+    collection = mongodb_session.get_collection("esv", "verses")
+
+    def retrieve_passage(self, passage: Passage, *args, **kwargs):
+        try:
+            passage = self.collection.find(
+                {
+                    'bookNum': passage.book.value,
+                    'chapter': passage.start_verse.chapter,
+                    'verse': {
+                        '$gte': passage.start_verse.verse,
+                        '$lte': passage.end_verse.verse
+                    },
+                },
+                {
+                    'data': 1,
+                    'verse': 1,
+                }
+            ).sort(
+                {
+                    'verse': 1
+                }
+            )
+            return list(map(lambda verse: (verse['verse'], verse['data']), passage))
+        except Exception as e:
+            print(e)
+            raise e
+
 class PassageList:
 
-    english_passage_api = KjvPassageApi()
+    english_passage_api = EsvPassageApi()
     chinese_passage_api = CuvsPassageApi()
 
     def __init__(self, passage: Passage) -> None:

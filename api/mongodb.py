@@ -1,9 +1,17 @@
+import abc
 from decouple import config
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 
-class MongoDB:
+class UploadMixin:
+
+    @abc.abstractmethod
+    def upload_data(self, database: str, collection_name: str, data: list[dict]):
+        pass
+
+
+class MongoDB(UploadMixin):
 
     def __init__(self, mongodb_uri: str) -> None:
         self.uri = mongodb_uri
@@ -29,6 +37,18 @@ class MongoDB:
             return self._client[database][collection]
         except:
             raise Exception("couldn't fetch collection")
+        
+    def upload_to_collection(self, database: str, collection_name: str, data: list[dict]):
+        if not self._client:
+            self.connect()
+        try:
+            self._client[database][collection_name].insert_many(data)
+        except Exception as e:
+            raise Exception("couldn't create collection", e)
+        
+    
+    def upload_data(self, database: str, collection_name: str, data: list[dict] ):
+        return self.upload_to_collection(database, collection_name, data)
 
 
 mongodb_session = MongoDB(config('MONGODB_URI', cast=str))  # type: ignore
